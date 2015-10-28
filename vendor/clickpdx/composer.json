@@ -1,0 +1,16 @@
+{
+    "name": "clickpdx/clickpdx",
+    "type": "library",
+    "description": "Framework for HTTP Service.",
+    "keywords": ["http service","service"],
+    "homepage": "https://github.com/ocdladefense/clickpdxservices", 
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jose Bernal", 
+            "email": "jbernal.web.dev@gmail.com", 
+            "homepage": "http://clickpdx.com",
+            "role": "Developer"
+        }
+    ]
+}
