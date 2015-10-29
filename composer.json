@@ -1,5 +1,5 @@
 {
-    "name": "clickpdx/core",
+    "name": "clickpdx/core", 
     "type": "library",
     "description": "Core files for the Clickpdx routing framework.",
     "keywords": ["http service","service"],
