@@ -47,6 +47,15 @@ class Route
 	private $routeCallback;
 	
 	/**
+	 * var routeClass
+	 *
+	 * The class that extends ControllerBase.
+	 * This class should provide callback methods associated with 
+	 * actual routes.
+	 */
+	private $routeClass;
+	
+	/**
 	 * var routeArguments
 	 *
 	 * Arguments passed to the routeCallback function.
@@ -108,6 +117,7 @@ class Route
 	{
 		$this->path							= $currentPath;
 		$this->routerKey 				= $routerKey;
+		$this->routeClass				= $menuItem['routeClass'];
 		$this->access						= $menuItem['access'];
 		$this->routeCallback 		= $menuItem['page callback'];
 		$this->routeArguments		= $this->processPathArguments($menuItem['page arguments']);
@@ -183,6 +193,11 @@ class Route
 	public function getRouteCallback()
 	{
 		return $this->routeCallback;
+	}
+	
+	public function getRouteClass()
+	{
+		return $this->routeClass;
 	}
 	
 	public function getOutputHandler()

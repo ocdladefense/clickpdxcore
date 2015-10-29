@@ -91,14 +91,29 @@ class RouteProcessor
 		 * the specified arguments.
 		 */
 		 // print entity_toString(RouteProcessor::processRouteParameters($route));exit;
-		 
-		$out	=	call_user_func_array(
-			$route->getRouteCallback(),
-			array_merge(
-				array_reverse(RouteProcessor::processRouteParameters($route)),
-				$route->getRouteArguments()
-			)
-		);
+		if(class_exists($class=$route->getRouteClass()))
+		{
+			$controller = new $class();
+			$controller->setContainer(new \Clickpdx\Core\DependencyInjection\DependencyInjectionContainer());
+			$out = call_user_func_array(
+				array($controller,$route->getRouteCallback()),
+				array_merge(
+					array_reverse(RouteProcessor::processRouteParameters($route)),
+					$route->getRouteArguments()
+				)
+			);
+		} 
+		else
+		{
+
+			$out	=	call_user_func_array(
+				$route->getRouteCallback(),
+				array_merge(
+					array_reverse(RouteProcessor::processRouteParameters($route)),
+					$route->getRouteArguments()
+				)
+			);
+		}
 		
 		
 		switch($route->getOutputHandler())
