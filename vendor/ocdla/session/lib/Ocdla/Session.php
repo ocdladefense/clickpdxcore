@@ -214,6 +214,37 @@ class Session
 		}
 	}
 	
+	public function setAppStatus($appName,$status)
+	{
+		if (!isset($_SESSION['sessionStatus'])) $_SESSION['sessionStatus'] = array();
+		$_SESSION['sessionStatus'][$appName] = $status;
+	}
+	
+	public function hasOcdlaSession()
+	{
+		return $this->hasAppSession('ocdla');
+	}
+	
+	public function hasLodSession()
+	{
+		return $this->hasAppSession('lodProd');
+	}
+	
+	public function hasLodTestSession()
+	{
+		return $this->hasAppSession('lodTest');
+	}
+	
+	public function hasIncompleteSession()
+	{
+		return $this->hasLodSession()&&$this->hasOcdlaSession();
+	}
+	
+	public function hasAppSession($appName)
+	{
+		return $_SESSION['sessionStatus'][$appName];
+	}
+	
 	protected function authenticateSession($UserID)
 	{
 		// No need to re-authenticate
