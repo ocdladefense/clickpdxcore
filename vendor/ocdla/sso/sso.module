@@ -1,12 +1,12 @@
 <?php
 use Ocdla\MediaWiki\ApiAuthenticationRequest as ApiAuthenticationRequest;
-use Ocdla\MediaWiki\ApiAuthenticationRequestTest as ApiAuthenticationRequestTest;
 use Ocdla\MediaWikiException\AuthenticationException as AuthenticationException;
 
 define('SSO_WIKI_API', 'https://libraryofdefense.ocdla.org/api.php');
 define('SSO_WIKI_API_TEST', 'https://lodtest.ocdla.org/api.php');
 
-function sso_menu() {
+function sso_menu()
+{
 	$items = array();
 
 	$items['login'] = array(
@@ -20,48 +20,33 @@ function sso_menu() {
 	return $items;
 }
 
-function sso_lod_login_submit($request, $session = null) {	
-	$UserID = $session->getUserID();
 
 
-	// new WikiAuthentication( username, password );
-	// -> getStages()
-	// -> getToken()
-	// -> debug()
-	// throws new MediaWikiApiAuthenticationException
-		// class MediaWikiApiBadPassword Exception
-		// class MediaWikiApiWrongUser Exception
-	// The submitted form data, encoded as query-string-style
-	// name-value pairs
-	$username = $request->get('UserName');
-	$lod_username = ucfirst($username);
-	$password = $request->get('password');
-	if($username == 'jbernal')
+function doesMediaWikiPreventEmailUsernames()
+{
+	global $wgInvalidUsernameCharacters;
+	global $wgPreventEmailUsernames;
+	if(isset($wgPreventEmailUsernames))
 	{
-		global $wgJoseDebug;
-		$wgJoseDebug = true;	
+		return $wgPreventEmailUsernames;
 	}
-		try
-		{
-			$mwAuth = new ApiAuthenticationRequest( SSO_WIKI_API_TEST, $UserID, $lod_username, $password );
-			$mwAuth->execute();
-			$mwAuthTest = new ApiAuthenticationRequestTest( SSO_WIKI_API, $UserID, $lod_username, $password );		
-			$mwAuthTest->execute();
-		}
-		catch( AuthenticationException $e )
-		{
-			mail(NOTIFICATION_EMAIL,'info@ocdla.org','MediaWiki Authentication Error',$e->getMessage());
-		}
-		catch(\Exception $e)
-		{
-			mail(NOTIFICATION_EMAIL,'info@ocdla.org','MediaWiki Authentication Error',$e->getMessage());
-		}
+	if(!isset($wgInvalidUsernameCharacters))
+	{
+		return true;
+	}
+	elseif(false===strpos($wgInvalidUsernameCharacters,'@'))
+	{
+		return false;
+	}
+	else return true;
 }
 
-
-
-function sso_lod_login_submit2($username, $session = null) {	
-	$UserID = $session->getUserID();
+function getValidMediaWikiUsername($username)
+{
+	if(!doesMediaWikiPreventEmailUsernames())
+	{
+		return ucfirst($username);
+	}
 	$n = strpos($username,'@');
 	if(false!==$n)
 	{
@@ -72,31 +57,54 @@ function sso_lod_login_submit2($username, $session = null) {
 		$lod_username=$username;
 	}
 	$lod_username = ucfirst($lod_username);
-	print "Checked username will be: {$lod_username}.<br />";
-	$password = 'foobar';
-	
-	global $wgJoseDebug;
-	$wgJoseDebug = false;	
+	return $lod_username;
+}
 
 
-	$mwAuthTest = new ApiAuthenticationRequestTest( SSO_WIKI_API_TEST, $UserID, $lod_username, $password );
-	$mwAuthTest->execute();
-	// $_MediaWikiAuth = new \MediaWikiApiAuthentication( SSO_WIKI_API, $UserID, $lod_username, $password );		
-	
-	/*
-	catch( AuthenticationException $e )
+
+function sso_lod_login_submit($request, $session = null)
+{	
+	$UserID = $session->getUserID();
+	$username = $request->get('UserName');
+	$lodUsername = getValidMediaWikiUsername($username);
+	$password = $request->get('password');
+	try
 	{
-		mail(NOTIFICATION_EMAIL,'info@ocdla.org','MediaWiki Authentication Error',$e->getMessage());
+		$mwAuthTest = new ApiAuthenticationRequest(SSO_WIKI_API_TEST,$UserID,$lodUsername);
+		if ($mwAuthTest->doAuthentication())
+		{
+			$session->setAppStatus('lodTest',true);
+		}
+		$mwAuth = new ApiAuthenticationRequest(SSO_WIKI_API,$UserID,$lodUsername,$password);
+		if($lodAuth = $mwAuth->doAuthentication())
+		{
+			$session->setAppStatus('lodProd',true);		
+		}
+		return $lodAuth;
 	}
 	catch(\Exception $e)
 	{
 		mail(NOTIFICATION_EMAIL,'info@ocdla.org','MediaWiki Authentication Error',$e->getMessage());
+		return false;
 	}
-	*/
 }
 
 
-function lod_user_is_logged_in() {
+
+function sso_lod_login_submit2($username, $session = null)
+{	
+	global $wgJoseDebug;
+	$UserID = $session->getUserID();
+	$lodUsername = getValidMediaWikiUsername($username);
+	$wgJoseDebug = false;	
+	\prgLog('About to authenticate to mediawiki...','mediawikiapi');
+	$mwAuthTest = new ApiAuthenticationRequestTest(SSO_WIKI_API_TEST,$UserID,$lodUsername);
+	$mwAuthTest->execute();
+}
+
+
+function lod_user_is_logged_in()
+{
  if(isset($_COOKIE[LOD_COOKIE_PREFIX.'_session']) || isset($_COOKIE[LOD_COOKIE_PREFIX.'session']))
  {
  	return true;
@@ -105,23 +113,31 @@ function lod_user_is_logged_in() {
 }
 
 
-function page_sso_ocdla_login( &$vars ) {
+function page_sso_ocdla_login(&$vars)
+{
 	global $request, $user;
 	$referrer = $request->getRequestValue('referrer');
 	
 	
-	if( user_is_authenticated() && lod_user_is_logged_in() ) {
+	if(user_is_authenticated() && lod_user_is_logged_in())
+	{
 		tail( 'User is authenticated.  Redirecting to profile page...' );
 		clickpdx_goto( 'https://www.ocdla.org/profiles/index.php' );
 	}
 	
 
-	if( !session_has_valid_session() ) {	
-		if(isset($_GET['ref'])) {
+	if(!session_has_valid_session())
+	{	
+		if(isset($_GET['ref']))
+		{
 			$location = '/ASPSessionCheck.aspx?action=forceLogin&'.$_SERVER["QUERY_STRING"];
-		} elseif(isset($_GET['referrer'])) {
+		}
+		elseif(isset($_GET['referrer']))
+		{
 			$location = '/ASPSessionCheck.aspx?action=forceLogin&ref=' . $referrer;// .'&'. $_SERVER["QUERY_STRING"];
-		} else {
+		}
+		else
+		{
 			$location = '/ASPSessionCheck.aspx?action=forceLogin&ref=' . $_SERVER['PHP_SELF'] .'&'. $_SERVER["QUERY_STRING"];
 		}
 		ttail('x redirecting to... '.$locationm,'lod');
@@ -130,7 +146,7 @@ function page_sso_ocdla_login( &$vars ) {
 	
 	
 	$output = clickpdx_get_form( 'ocdla_login_sso_form' );
-	$LoginMsg = _get_login_message( array( 'referrer' => $referrer, ) );
+	$LoginMsg = _get_login_message(array('referrer' => $referrer));
 	$content = "<h2>Member Login</h2><span>{$LoginMsg}</span>";
 	$content .= $output;
 	$content .= <<<EOF
@@ -139,25 +155,31 @@ function page_sso_ocdla_login( &$vars ) {
 	<p>If you are not an OCDLA member, <a href="/shop-membr-index.shtml">JOIN HERE.</a></p>
 EOF;
 	return $content;
-} //page_ocdla_login
+}
 
 
 
-function _get_login_message( $data = array() ) {
+function _get_login_message($data = array())
+{
 	$LoginMsg = null;
-	if( null === $data['referrer'] ) {
+	if( null === $data['referrer'] )
+	{
 		$LoginMsg = 'Please enter your OCDLA Username and Password.';		
 	}
-	else if(strpos($data['referrer'],'https://lod.ocdla.org')===0
-		|| strpos($data['referrer'],'https://libraryofdefense.ocdla.org')===0 ) {
+	else if(
+		strpos($data['referrer'],'https://lod.ocdla.org')===0
+		|| strpos($data['referrer'],'https://libraryofdefense.ocdla.org')===0
+	)
+	{
 		$LoginMsg = 'You must be logged in to view this page of the Library of Defense.';
 	}
 	return $LoginMsg;
 }
 
 
-function ocdla_login_sso_form_validate( &$form, &$form_state ) {
-	 global $user;
+function ocdla_login_sso_form_validate(&$form,&$form_state)
+{
+	global $user;
 	tail( 'validating login...' .print_r( $form_state, TRUE));
 	$username = $form_state['values']['UserName'];
 	$password = $form_state['values']['password'];
@@ -199,10 +221,11 @@ function ocdla_login_sso_form_validate( &$form, &$form_state ) {
 	$form_state['uid'] = $u->get_user_id();
 	
 	return TRUE;
-}// ocdla_login_form_sso_validate
+}
 
 
-function ocdla_login_sso_form_submit( $form, &$form_state ) {
+function ocdla_login_sso_form_submit( $form, &$form_state )
+{
 	global $user, $request;
 	session_update_session($form_state['uid']);
 	$user = user_load();
@@ -212,17 +235,18 @@ function ocdla_login_sso_form_submit( $form, &$form_state ) {
 	 * since all paths to the login page go through the ASPSessionCheck.aspx file
 	 *
 	 */
-	if( !isset($_COOKIE['ASP_NET_SessionId']) ) {
+	if(!isset($_COOKIE['OCDLA_SessionId']))
+	{
 		throw new Exception('OCDLA Login: the ASP.Net_SessionId was not properly set.');
 	}
 
 	// setcookie('OCDLA_SessionId', '', time()-3600,'/','.ocdla.org');
-	setcookie( 'OCDLA_SessionId', $_COOKIE['ASP_NET_SessionId'], time()+60*60*24*30, '/', '.ocdla.org');
+	setcookie( 'OCDLA_SessionId', $_COOKIE['OCDLA_SessionId'], time()+60*60*24*30, '/', '.ocdla.org');
 	
 	/**
 	 * redirect to the user's intended destination
 	 **/
-	if( empty($form_state['values']['reff']) )
+	if( empty($form_state['values']['reff']))
 	{
 		$form_state['values']['reff'] = 'profiles/index.php';
 	}
@@ -234,10 +258,11 @@ function ocdla_login_sso_form_submit( $form, &$form_state ) {
 		'protocol' => $form_state['values']['protocol'],
 		'server' => $form_state['values']['server'],
 	);	 
-}//ocdla_login_sso_form_submit
+}
 
 
-function ocdla_login_sso_form( /*default form structure*/$form, &$form_state ) {
+function ocdla_login_sso_form( /*default form structure*/$form, &$form_state )
+{
 	
 	$form = array();
 	$form['#theme'] = 'theme_form';
