@@ -7,89 +7,60 @@ use Ocdla\Http\LodCookie as LodCookie;
 use Ocdla\Http\LodTestCookie as LodTestCookie;
 use Ocdla\MediaWikiException\AuthenticationException as AuthenticationException;
 
-/*
-$MediaWikiApiResponseCodes = array(
-"NoName" => "This user did not provide a username or the username parameter (lgname) was not provided to the API.",
-"Illegal" => "The provided username was illegal.",
-"NotExists" => "The username you provided doesn't exist",
-"EmptyPass" => "You didn't set the lgpassword parameter or you left it empty.",
-"WrongPass" => "The password you provided was incorrect.",
-"WrongPluginPass" => "Same as WrongPass, returned when an authentication plugin rather than MediaWiki itself rejected the password.",
-"CreateBlocked" => "The wiki tried to automatically create a new account for you, but your IP address has been blocked from account creation.",
-"Throttled" => "You've logged in too many times in a short time.",
-"Blocked" => "User is blocked.",
-"mustbeposted" => "The login module requires a POST request.",
-"NeedToken" => "Either you did not provide the login token or the sessionid cookie. Request again with the token and cookie given in this response."
-);
-*/
-
 class ApiAuthenticationRequest
 {
-
-	protected $apiUrl;
-	protected $uid;
-	
-	protected $debug = false;
-	
-	protected $success;
-	protected $stages;
-	protected $headers;
-	protected $username;
-	protected $password;
-	
-	// full path to cookie file
-	protected $cookie;
-	protected $cookiefile;
-	
-	protected $initial_request_body;
-	protected $confirm_request_body;
-	protected $initial_response_body;
-	protected $confirm_response_body;
-	
-	protected $lgtoken;
-	protected $sessionid;
-	protected $cookieprefix;
-	protected $UserID;
-	protected $UserName;
-	protected $ConfirmedToken;
-	
 	const API_RESPONSE_FORMAT = 'xml';
 	
-	public function setUid($uid){
-		$this->uid = $uid;
-	}
+	protected $apiUrl;
 	
-	public function setEndpoint($apiUrl){
-		$this->apiUrl = $apiUrl;
-	}
+	protected $uid;
 	
-	public function __construct( $apiUrl, $UserID, $username, $password )
+	protected $username;
+	
+	protected $password;
+	
+	protected $cookie;
+	
+	protected $cookiefile;
+
+	private $initParams;
+	
+	private $loginParams;
+	
+	private $initReqBody;
+	
+	private $loginReqBody;
+
+	private $initRespParser;
+	
+	private $loginRespParser;
+	
+	private $cookies = array( 'sessionid' => 'session', 'lguserid'=>'UserID', 'lgusername' => 'UserName', 'lgtoken' => 'Token');
+	
+	public function __construct($apiUrl,$UserID,$username,$password='1234')
 	{	
 		$this->apiUrl = $apiUrl;
-		$this->cookie = new LodCookie($UserID);
+		$cookieClass = $apiUrl==SSO_WIKI_API_TEST?"\\Ocdla\\Http\\LodTestCookie":"\\Ocdla\\Http\\LodCookie";
+		$this->cookie = new $cookieClass($UserID);
 		$this->cookiefile = $this->cookie->getFilePath();
-	
-		$this->success 			= false;
 		$this->username 		= $username;
 		$this->password 		= $password;
 	
-		$this->stages = array(
-			'init' => array(
-				'action'			=> 'login',
-				'lgname'			=> $username,
-				'lgpassword'	=> $password,
-				'format'			=> self::API_RESPONSE_FORMAT,
-			),
-			'confirm' => array(
-				'action'			=> 'login',
-				'lgname'			=> $username,
-				'lgpassword'	=> $password,
-				'format'			=> self::API_RESPONSE_FORMAT,
-			),
+		$this->initParams = array(
+			'action'			=> 'login',
+			'lgname'			=> $username,
+			'lgpassword'	=> $password,
+			'format'			=> self::API_RESPONSE_FORMAT,
+		);
+		$this->loginParams = array(
+			'action'			=> 'login',
+			'lgname'			=> $username,
+			'lgpassword'	=> $password,
+			'format'			=> self::API_RESPONSE_FORMAT,
 		);
 	}
-	
-	public function execute()
+
+	public function doAuthentication()
 	{
 		$this->sendInitialRequest();
 	
@@ -97,61 +68,109 @@ class ApiAuthenticationRequest
 
 		$this->setMediaWikiAuthCookies();
 		
-		if( !$this->getStatus() )
+		if(!$this->success())
 		{
-			throw new AuthenticationException( $this->confirm_request_body, $this->confirm_response_body );
+			throw new AuthenticationException($this);
 		}
+		return true;
+	}
+
+	private function doRequest($params)
+	{
+		return $this->doCurlRequest($this->apiUrl,$this->formatRequestBody($params),$this->cookiefile);
+	}
+	
+	private function doCurlRequest( $url, $body, $cookiefile )
+	{
+		$ch = curl_init($url);
+		curl_setopt($ch, 		CURLOPT_POST, true);
+		// curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.9) Gecko/20071025 Firefox/2.0.0.9');
+		curl_setopt($ch, 		CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($ch, 		CURLOPT_ENCODING, "UTF-8" );
+		curl_setopt($ch, 		CURLOPT_POSTFIELDS, $body);
+		curl_setopt($ch, 		CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, 		CURLOPT_COOKIEFILE, $cookiefile);
+		curl_setopt($ch, 		CURLOPT_COOKIEJAR, $cookiefile);
+		curl_setopt($ch, 		CURLOPT_VERBOSE, 0);
+		curl_setopt($ch, 		CURLOPT_HEADER, 1);
+		$response = curl_exec ($ch);
+		$header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+		$header = substr($response, 0, $header_size);
+		$body = substr($response, $header_size);
+		curl_close ($ch);
+		return array('header'=>$header, 'response_body'=>$body);
 	}
 	
 	protected function sendInitialRequest()
 	{
-		ttail("cURL stages:\n".print_r( $this->stages,true),'mediawikiapi');
+		$init = $this->doRequest($this->initParams);
+		$this->initRespParser = new ApiLoginResponseParser($init['response_body']);
+		$this->lgtoken=$this->initRespParser->getToken();
+	}
 
-		$init_body = \formatRequestBody( $this->stages['init'] );
-		//	print_r($init_body);
-		// send the initial request	
-		$init = \cinit( $this->apiUrl, $init_body, $this->cookiefile );
-		//		print_r($init);exit;
-		$headers = explode("\r\n\r\n",$init['header']);
-		ttail( 'Headers are: '.print_r($headers,TRUE),'mediawikiapi');
-		$this->initial_response_body = \parseResponse( $init['response_body'] );
-		ttail( 'SSO initial response: '.print_r($this->initial_response_body,TRUE),'mediawikiapi' );
-		$this->lgtoken = $this->initial_response_body['token'];
-	}
-	
-	protected function getResult()
-	{
-		return $this->confirm_response_body['result'];
-	}
-	public function getStatus()
-	{
-		return $this->success;
-	}
 	protected function sendAuthenticationRequest()
 	{
-		// confirm the request
-		$this->confirm_request_body = \formatRequestBody($this->stages['confirm']+array('lgtoken'=>$this->lgtoken));
-		ttail('Second request body is: '.print_r($this->confirm_request_body,true),'mediawikiapi');
+		$confirm = $this->doRequest($this->loginParams+array('lgtoken'=>$this->lgtoken));
+		$this->loginRespParser = new ApiLoginResponseParser($confirm['response_body']);
+		$this->secondaryResponseXml=$this->loginRespParser->getXml();
+	}
 	
-		$confirm = \cinit( $this->apiUrl, $this->confirm_request_body, $this->cookiefile );
-		$this->confirm_response_body = \parseResponse( $confirm['response_body'] );
-		ttail( 'SSO confirm response:'.print_r($this->confirm_response_body, TRUE),'mediawikiapi' );
-		$this->success = $this->confirm_response_body['result'] == 'Success' ? true : false;
-	}
-	public function getInfo()
+	public function success()
 	{
-		$info = print_r( $this->confirm_response_body, true);
-		return $info;
+		return ($this->loginRespParser->getResult() == 'Success');
 	}
-	public function setMediaWikiAuthCookies()
+	
+	public function getLoginResult()
 	{
-		// set any remaining cookies
-		$cookies = array( 'sessionid' => 'session', 'lguserid'=>'UserID', 'lgusername' => 'UserName', 'lgtoken' => 'Token');
-		foreach( $cookies AS $responsekey => $cookiename )
+		return $this->loginRespParser->getResult();
+	}
+	
+	private function getRequestParams($stage='init')
+	{
+		switch($stage)
 		{
-			setcookie( $this->confirm_response_body['cookieprefix'] . $cookiename, $this->confirm_response_body[$responsekey], time() + 2592000, "/", ".ocdla.org" );
+			case 'init':
+				return $this->formatRequestBody($this->initParams);
+				break;
+			case 'login':
+				return $this->formatRequestBody($this->loginParams);
+				break;
 		}
 	}
+	
 
+	
+	private function formatRequestBody($params=array())
+	{
+		$b;
+		foreach( $params AS $k=>$v ) {
+			$b[] = "$k=$v";
+		}
+		$b = implode("&",$b);
+		return $b;
+	}
+	
 
+	
+	public function setMediaWikiAuthCookies()
+	{
+		foreach($this->cookies as $key=>$cookiename)
+		{
+			setcookie($this->getVal('cookieprefix') . $cookiename, $this->getVal($key), time() + 2592000, "/", ".ocdla.org");
+		}
+	}
+	
+	private function getVal($key)
+	{
+		return $this->loginRespParser->{$key};
+	}
+	
+	public function __toString()
+	{
+		$ret="<h3>Initial Request:</h3><p>{$this->getRequestParams('init')}</p>";
+		$ret.=$this->initRespParser;
+		$ret.="<h3>Secondary Request:</h3><p>{$this->getRequestParams('login')}</p>";
+		$ret.=$this->loginRespParser;
+		return $ret;
+	}
 }
