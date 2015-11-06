@@ -182,10 +182,10 @@ function theme_footer_info( $info = NULL )
 
 
 
-function drupal_add_css( $css_array )
+function drupal_add_css($css_array)
 {
 	global $css;
-	array_push( $css, $css_array );
+	array_push($css, $css_array);
 }
 
 

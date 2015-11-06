@@ -7,6 +7,31 @@ define('DRUPAL_HTML_PAGE','html');
 $js_string = array();
 
 
+function clickpdx_get_css()
+{		
+	global $css;
+	$styles = '';
+	
+	foreach($css as $style)
+	{
+		$path = $style['path'];
+		if ($style['type']=='inline')
+		{
+			$styles .= $style['data'];
+			continue;
+		}
+		$styles .= "\n<link rel='stylesheet' href='{$path}' media='{$style['media']}' type='text/css' />";
+	}
+	return $styles;
+}
+
+
+function path_starts_with($startString)
+{
+	return strpos(drupal_get_path_alias(), $startString)===0;
+}
+
+
 function l($url,$options=null,$domain=null,$proto=null)
 {
 	$abs = isset($options['absolute'])?true:false;
@@ -92,7 +117,8 @@ function get_statuses( $s = array() ) {
 
 function base_path() {
 	global $base_path;
-	return $base_path;
+	if(isset($base_path)) return $base_path;
+	else return '';
 }
 
 
