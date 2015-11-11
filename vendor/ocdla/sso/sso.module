@@ -70,17 +70,18 @@ function sso_lod_login_submit($request, $session = null)
 	$password = $request->get('password');
 	try
 	{
-		$mwAuthTest = new ApiAuthenticationRequest(SSO_WIKI_API_TEST,$UserID,$lodUsername);
-		if ($mwAuthTest->doAuthentication())
-		{
-			$session->setAppStatus('lodTest',true);
-		}
+		// $mwAuthTest = new ApiAuthenticationRequest(SSO_WIKI_API_TEST,$UserID,$lodUsername);
+		// if ($mwAuthTest->doAuthentication())
+		// {
+		// 	$session->setAppStatus('lodTest',true);
+		// }
 		$mwAuth = new ApiAuthenticationRequest(SSO_WIKI_API,$UserID,$lodUsername,$password);
-		if($lodAuth = $mwAuth->doAuthentication())
+		if (true === ($lodAuth = $mwAuth->doAuthentication()))
 		{
 			$session->setAppStatus('lodProd',true);		
+			return $lodAuth;
 		}
-		return $lodAuth;
+		else return false;
 	}
 	catch(\Exception $e)
 	{

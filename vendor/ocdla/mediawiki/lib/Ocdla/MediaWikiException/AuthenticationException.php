@@ -2,7 +2,7 @@
 
 namespace Ocdla\MediaWikiException;
 
-class AuthenticationException extends Exception
+class AuthenticationException extends \Exception
 {
 
 	private $ApiQuery;
