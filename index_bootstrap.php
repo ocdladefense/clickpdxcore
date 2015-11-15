@@ -11,10 +11,10 @@ require_once DRUPAL_ROOT .'/core/includes/autoload.inc';
 require_once DRUPAL_ROOT .'/core/autoload.php';
 require_once DRUPAL_ROOT .'/core/modules/twig/lib/Twig/Autoloader.php';
 require_once DRUPAL_ROOT .'/vendor/autoload.php';
-require_once DRUPAL_ROOT .'/vendor/doctrine/common/lib/Doctrine/Common/ClassLoader.php';
+// require_once DRUPAL_ROOT .'/vendor/doctrine/common/lib/Doctrine/Common/ClassLoader.php';
 
-$classLoader = new ClassLoader('Doctrine', DRUPAL_ROOT.'/vendor/doctrine');
-$classLoader->register();
+// $classLoader = new ClassLoader('Doctrine', DRUPAL_ROOT.'/vendor/doctrine');
+// $classLoader->register();
 
 
 require( DRUPAL_ROOT.'/core/includes/database.inc' );
