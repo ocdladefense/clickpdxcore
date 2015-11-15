@@ -10,11 +10,10 @@ use Doctrine\Common\ClassLoader;
 require_once DRUPAL_ROOT .'/core/includes/autoload.inc';
 require_once DRUPAL_ROOT .'/core/autoload.php';
 require_once DRUPAL_ROOT .'/core/modules/twig/lib/Twig/Autoloader.php';
-require_once DRUPAL_ROOT .'/core/vendor/ocdla/autoload.php';
-require_once DRUPAL_ROOT .'/core/vendor/clickpdx/autoload.php';
-require_once DRUPAL_ROOT .'/core/vendor/doctrine/common/lib/Doctrine/Common/ClassLoader.php';
+require_once DRUPAL_ROOT .'/vendor/autoload.php';
+require_once DRUPAL_ROOT .'/vendor/doctrine/common/lib/Doctrine/Common/ClassLoader.php';
 
-$classLoader = new ClassLoader('Doctrine', DRUPAL_ROOT.'/core/vendor/doctrine');
+$classLoader = new ClassLoader('Doctrine', DRUPAL_ROOT.'/vendor/doctrine');
 $classLoader->register();
 
 
@@ -34,7 +33,7 @@ require( DRUPAL_ROOT.'/core/includes/filters.inc' );
 require( DRUPAL_ROOT.'/core/includes/node.inc' );
 
 
-require(DRUPAL_ROOT.'/core/vendor/ocdla/database/DBQuery.php');
+// require(DRUPAL_ROOT.'/vendor/ocdla/database/DBQuery.php');
 
 /** 
  * Theme layer.

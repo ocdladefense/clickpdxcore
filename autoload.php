@@ -14,7 +14,7 @@ $core=createAutoloader(array('core/lib'),DRUPAL_ROOT);
  *
  * Responsible for doing a stand-alone loading of Doctrine.
  */
-$doctrine=createAutoloader(array('common/lib','dbal/lib'),DRUPAL_ROOT.'/core/vendor/doctrine');
+$doctrine=createAutoloader(array('common/lib','dbal/lib'),DRUPAL_ROOT.'/vendor/doctrine');
 
 
 
