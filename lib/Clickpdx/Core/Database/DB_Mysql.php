@@ -1,6 +1,7 @@
 <?php
 
 namespace Clickpdx\Core\Database;
+use \Clickpdx\Core\Exception\DatabaseException;
 
 class DB_Mysql
 {
@@ -17,6 +18,7 @@ class DB_Mysql
 		$this->dbhost = $dbhost;
 		$this->dbname = $dbname;
 	}	
+
 	public function __toString()
 	{
 		return ("Class: ".__CLASS__." Host: {$this->dbhost} Db: {$this->dbname} User: {$this->user} Pass: ***");
@@ -38,40 +40,68 @@ class DB_Mysql
 		{
 			$this->connect();
 		}
-		return new DB_MysqlStatement( $this->dbh, $query );
+		return new DB_MysqlStatement( $this->dbh, $query, $this);
+	}
+	
+	public function getHost()
+	{
+		return $this->dbhost;
+	}
+	
+	public function getUser()
+	{
+		return $this->user;
+	}
+	
+	public function getDbName()
+	{
+		return $this->dbname;
 	}
 	
 	public function execute( $query ) {
+
 		if( !$this->dbh ) {
 			$this->connect();
 		}
-		if( !$ret ) {
+		if( !$ret )
+		{
 			throw new \Exception;
 		}
-		elseif( !is_resource( $ret ) ) {
+		elseif (!is_resource( $ret ))
+		{
 			return TRUE;
-		} else {
-			$stmt = new DB_MysqlStatement( $this->dbh, $query );
-			// $stmt->result = $ret;
+		}
+		else
+		{
+			$stmt = new DB_MysqlStatement($this->dbh, $query, $this);
 			return $stmt;
 		}
-	}		
+	}	
 }
 
 
-class DB_MysqlStatement {
+class DB_MysqlStatement
+{
 	protected $result;
+	
 	public $binds;
+	
 	public $query;
+	
 	private $actual_query;
+	
 	protected $dbh;
 
+	private $conn;
+	
 	public function getQuery()
 	{
 		return $this->actual_query;
 	}
 	
-	public function __construct( $dbh, $query ) {
+	public function __construct( $dbh, $query, $conn = null )
+	{
+		$this->conn = $conn;
 		$this->query = $query;
 		$this->dbh = $dbh;
 		if(!is_resource($dbh)){
@@ -100,7 +130,8 @@ class DB_MysqlStatement {
 		else return $this->parameterValueQuote($vals);
 	}
 	
-	public function execute() {
+	public function execute()
+	{
 		$args = func_get_args();
 		if( is_array($args[0]) ) 
 		{
@@ -130,7 +161,11 @@ class DB_MysqlStatement {
 		$this->result = \mysql_query($query, $this->dbh);
 		if(!$this->result)
 		{
-			throw new \Exception('<h2>There was an error executing the query:</h2>'.'<pre>'.$query."</pre>With parameters:<br /><pre> ".print_r($binds,true)."</pre>". "<h3>The Error was: </h3><pre>". \mysql_error()."</pre>");
+			$exception = new DatabaseException('<h2>There was an error executing the query:</h2>'.'<pre>'.$query."</pre>With parameters:<br /><pre> ".print_r($binds,true)."</pre>". "<h3>The Error was: </h3><pre>". \mysql_error()."</pre>");
+			$exception->setHost($this->conn->getHost());
+			$exception->setUser($this->conn->getUser());
+			$exception->setDb($this->conn->getDbName());
+			throw $exception;
 		}
 		return $this;
 	}
@@ -146,7 +181,8 @@ class DB_MysqlStatement {
 		return mysql_fetch_assoc($this->result);
 	}
 
-	public function fetchall_assoc() {
+	public function fetchall_assoc()
+	{
 		$retval = array();
 		while($row = $this->fetch_assoc()) {
 			$retval[] = $row;

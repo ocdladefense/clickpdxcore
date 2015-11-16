@@ -141,7 +141,8 @@ function _drupal_load_modules($refresh=true)
 function _get_modules()
 {
 	static $module_paths = array();
-	if(system_filesystem_only())
+	if (count($module_paths) > 0) return $module_paths;
+	if (system_filesystem_only())
 	{
 		$module_paths = _get_modules_fs();
 	}

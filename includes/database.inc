@@ -42,28 +42,35 @@ function get_mysql_connect_params($p,$cNew=false)
  */
 function db_query($query,$params=null,$type='mysql',$debug=false)
 {
-	if($debug) ini_set('display_errors','1');
-	$sql = Database::finalizeSql($query,$debug);
-	switch($type)
+	try
 	{
-		case 'mysql':
-			global $db_connection;
-			$stmt = $db_connection->prepare($sql);
-			return $stmt->execute($params);
-			break;
-		case 'pdo':
-			$dbConn = get_connection();
-			if($debug) print "Class for database is: ".get_class($dbConn);
-			$stmt = $dbConn->prepare($sql);
-			if($debug) print "Class for stmt is: ".get_class($stmt);
+		if($debug) ini_set('display_errors','1');
+		$sql = Database::finalizeSql($query,$debug);
+		switch($type)
+		{
+			case 'mysql':
+				global $db_connection;
+				$stmt = $db_connection->prepare($sql);
+				return $stmt->execute($params);
+				break;
+			case 'pdo':
+				$dbConn = get_connection();
+				if($debug) print "Class for database is: ".get_class($dbConn);
+				$stmt = $dbConn->prepare($sql);
+				if($debug) print "Class for stmt is: ".get_class($stmt);
 			
-			foreach ($params as $named=>$value)
-			{
-				if($debug) print "<br />Binding {$named} to {$value}...";
-				$stmt->bindValue($named,$value);
-			}
-			if($stmt->execute()) return $stmt;
-			else throw new Exception("There was a database error.");
-			break;
+				foreach ($params as $named=>$value)
+				{
+					if($debug) print "<br />Binding {$named} to {$value}...";
+					$stmt->bindValue($named,$value);
+				}
+				if($stmt->execute()) return $stmt;
+				else throw new Exception("There was a database error.");
+				break;
+		}
+	}
+	catch(\Exception $e)
+	{
+		print $e;
 	}
 }
