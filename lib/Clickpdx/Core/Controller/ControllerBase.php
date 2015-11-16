@@ -15,6 +15,8 @@ class ControllerBase
 	 */
 	private $container;
 	
+	protected $logArray = array();
+	
 	public function setContainer($container)
 	{
 		$this->container = $container;
@@ -24,5 +26,15 @@ class ControllerBase
 	{
 		$mailer = $this->container->getMailer($recipients,$subject,$message);
 		return $mailer->send();
+	}
+	
+	protected function log($msg)
+	{
+		$this->logArray[] = $log;
+	}
+	
+	protected function getLog()
+	{
+		return implode('<br />',$this->logArray);
 	}
 }
