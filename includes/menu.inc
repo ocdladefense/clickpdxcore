@@ -151,7 +151,7 @@ function evaluateMenuAccess($route,$path)
 	if(is_bool($route->getAccessCallback())) return $route->getAccessCallback();
 	if(function_exists($route->getAccessCallback()))
 	{
-		return call_user_func_array($route->getAccessCallback());//,menu_access_args($route->getAccessArgs(),$path));
+		return call_user_func($route->getAccessCallback());
 	}
 	$parentKey = getNextMenuItemParentKey($route->getPath());
 	$nextRouter = getMenuRouterItem($parentKey);
