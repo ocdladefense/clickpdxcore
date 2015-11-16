@@ -20,7 +20,7 @@ class ControllerBase
 	public function setContainer($container)
 	{
 		$this->container = $container;
-	}
+	}   
 	
 	protected function mail($recipients,$subject,$message)
 	{

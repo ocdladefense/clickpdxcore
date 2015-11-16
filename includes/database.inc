@@ -1,7 +1,6 @@
 <?php
 
 use Clickpdx\Core\Database\Db_Mysql;
-use Clickpdx\Core\Database\Db_MysqlAws;
 use Clickpdx\Core\Database\Database;
 
 
@@ -39,6 +38,10 @@ function get_mysql_connect_params($p,$cNew=false)
  * Query syntax:
  *
  * db_query('SELECT * FROM catalog WHERE i=:1,array($i))
+ *
+ * When using the 'PDO' driver through doctrine:
+ * 
+ * 	
  */
 function db_query($query,$params=null,$type='mysql',$debug=false)
 {
