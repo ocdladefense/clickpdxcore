@@ -175,7 +175,10 @@ class Route
 	{
 		return $this->access;
 	}
-	
+	private function getControllerClass()
+	{
+		return $this->routeClass;
+	}
 	public function getRouteArguments()
 	{
 		return $this->routeArguments;
@@ -188,7 +191,12 @@ class Route
 	
 	public function hasValidCallback()
 	{
-		return function_exists($this->routeCallback);
+		return function_exists($this->routeCallback)||$this->hasValidControllerClassCallback();
+	}
+	private function hasValidControllerClassCallback()
+	{
+		return class_exists($this->getControllerClass())&&
+			method_exists($this->getControllerClass(),$this->getRouteCallback());
 	}
 	public function getRouteCallback()
 	{
