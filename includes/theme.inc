@@ -91,6 +91,11 @@ function theme_get_active_theme_info()
 	return $active_theme;
 }
 
+function path_to_theme()
+{
+	return theme_get_active_theme_info()['theme_path'];
+}
+
 
 		
 function drupal_add_js( Clickpdx\Core\Script $script, $region = SCRIPT_REGION_HEADER )

@@ -9,7 +9,7 @@ use Doctrine\Common\ClassLoader;
  */
 require_once DRUPAL_ROOT .'/core/includes/autoload.inc';
 require_once DRUPAL_ROOT .'/core/autoload.php';
-require_once DRUPAL_ROOT .'/core/modules/twig/lib/Twig/Autoloader.php';
+// require_once DRUPAL_ROOT .'/core/modules/twig/lib/Twig/Autoloader.php';
 require_once DRUPAL_ROOT .'/vendor/autoload.php';
 // require_once DRUPAL_ROOT .'/vendor/doctrine/common/lib/Doctrine/Common/ClassLoader.php';
 
@@ -35,18 +35,6 @@ require( DRUPAL_ROOT.'/core/includes/node.inc' );
 
 // require(DRUPAL_ROOT.'/vendor/ocdla/database/DBQuery.php');
 
-/** 
- * Theme layer.
- *
- * Initialize a theme helper using Twig.  Twig will parse all of our templates.
- */
-Twig_Autoloader::register();
-$loader = new Twig_Loader_Filesystem(DRUPAL_ROOT .'/sites/all/themes/ocdla/templates');
-$twig = new Twig_Environment($loader, array(
-	'cache' => DRUPAL_ROOT .'/sites/default/files/cache',
-	'debug' => false,
-));
-
 /**
  * Settings file.
  *
@@ -54,6 +42,18 @@ $twig = new Twig_Environment($loader, array(
  */
 require(getSettingsFile());
 
+
+/** 
+ * Theme layer.
+ *
+ * Initialize a theme helper using Twig.  Twig will parse all of our templates.
+ */
+// Twig_Autoloader::register();
+$loader = new Twig_Loader_Filesystem(DRUPAL_ROOT .'/'.path_to_theme() .'/templates');
+$twig = new Twig_Environment($loader, array(
+	'cache' => DRUPAL_ROOT .'/sites/default/files/cache',
+	'debug' => false,
+));
 
 // Set to the user defined error handler
 // $old_error_handler = set_error_handler("myErrorHandler", E_WARNING | E_USER_WARNING);
