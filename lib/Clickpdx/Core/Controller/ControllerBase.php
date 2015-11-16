@@ -30,7 +30,7 @@ class ControllerBase
 	
 	protected function log($msg)
 	{
-		$this->logArray[] = $log;
+		$this->logArray[] = $msg;
 	}
 	
 	protected function getLog()
