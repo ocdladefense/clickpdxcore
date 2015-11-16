@@ -1,6 +1,6 @@
 <?php
 
-namespace Clickpdx;
+namespace Clickpdx\Core\Exception;
 
 class InvalidLoginException extends \Exception
 {
