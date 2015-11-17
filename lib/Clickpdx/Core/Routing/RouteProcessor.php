@@ -119,7 +119,7 @@ class RouteProcessor
 			}
 		} catch(\Exception $e)
 		{
-			$out = $e->getMessage();
+			$errors = $e->getMessage();
 		}
 		
 		
@@ -139,8 +139,9 @@ class RouteProcessor
 				{
 					try
 					{
-						$vars['page']['content']=$out;
-						$vars['route_arguments'] = $route->getRouteArguments();
+						$vars['page']['content']		= $out;
+						$vars['page']['errors'] 		= $errors;
+						$vars['route_arguments'] 		= $route->getRouteArguments();
 					}
 					catch(Exception $e)
 					{

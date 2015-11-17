@@ -40,8 +40,18 @@ function get_mysql_connect_params($p,$cNew=false)
  * db_query('SELECT * FROM catalog WHERE i=:1,array($i))
  *
  * When using the 'PDO' driver through doctrine:
- * 
- * 	
+ * ----------------------------------------
+ * db_query("SELECT * FROM {downloads} WHERE file_creation_time 
+ *		IS NULL AND entry_time >= :past
+ *		AND memberid != 0",array('past'=>$past),'pdo')->fetchAll();
+ *
+ *
+ * When using the 'MySQL' driver through the core library:
+ * ----------------------------------------
+ * 	$stmt = db_query('SELECT * FROM {members} m LEFT JOIN {downloads} d 
+ *		ON(m.id=d.memberid) JOIN {catalog} cat ON(cat.i=d.productid) WHERE 
+ *		memberid=:1 AND productid=:2',array($memberid,$productid));
+ *	$this->info = $stmt->fetch_assoc();
  */
 function db_query($query,$params=null,$type='mysql',$debug=false)
 {
