@@ -88,31 +88,38 @@ class RouteProcessor
 		 * Invoke the callback.
 		 *
 		 * Invoke the callback for this Route with
-		 * the specified arguments.
+		 * the specified arguments. If there are errors,
+		 * capture those into $out and print them on the page.
 		 */
 		 // print entity_toString(RouteProcessor::processRouteParameters($route));exit;
-		if(class_exists($class=$route->getRouteClass()))
-		{
-			$controller = new $class();
-			$controller->setContainer(new \Clickpdx\Core\DependencyInjection\DependencyInjectionContainer());
-			$out = call_user_func_array(
-				array($controller,$route->getRouteCallback()),
-				array_merge(
-					array_reverse(RouteProcessor::processRouteParameters($route)),
-					$route->getRouteArguments()
-				)
-			);
-		} 
-		else
-		{
+		try
+			{
+			if(class_exists($class=$route->getRouteClass()))
+			{
+				$controller = new $class();
+				$controller->setContainer(new \Clickpdx\Core\DependencyInjection\DependencyInjectionContainer());
+				$out = call_user_func_array(
+					array($controller,$route->getRouteCallback()),
+					array_merge(
+						array_reverse(RouteProcessor::processRouteParameters($route)),
+						$route->getRouteArguments()
+					)
+				);
+			} 
+			else
+			{
 
-			$out	=	call_user_func_array(
-				$route->getRouteCallback(),
-				array_merge(
-					array_reverse(RouteProcessor::processRouteParameters($route)),
-					$route->getRouteArguments()
-				)
-			);
+				$out	=	call_user_func_array(
+					$route->getRouteCallback(),
+					array_merge(
+						array_reverse(RouteProcessor::processRouteParameters($route)),
+						$route->getRouteArguments()
+					)
+				);
+			}
+		} catch(\Exception $e)
+		{
+			$out = $e->getMessage();
 		}
 		
 		
