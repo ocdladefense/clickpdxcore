@@ -47,7 +47,7 @@ require(getSettingsFile());
 $loader = new Twig_Loader_Filesystem(DRUPAL_ROOT .'/'.path_to_theme() .'/templates');
 $twig = new Twig_Environment($loader, array(
 	'cache' => DRUPAL_ROOT .'/sites/default/files/cache',
-	'debug' => false,
+	'debug' => TWIG_DEBUG,
 ));
 
 // Set to the user defined error handler
