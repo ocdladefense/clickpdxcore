@@ -31,6 +31,11 @@ function path_starts_with($startString)
 	return strpos(drupal_get_path_alias(), $startString)===0;
 }
 
+function path_contains($string)
+{
+	return strpos(drupal_get_path_alias(), $string)!==false;
+}
+
 
 function l($url,$options=null,$domain=null,$proto=null)
 {
