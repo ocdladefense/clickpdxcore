@@ -92,8 +92,6 @@ class RouteProcessor
 		 * capture those into $out and print them on the page.
 		 */
 		 // print entity_toString(RouteProcessor::processRouteParameters($route));exit;
-		try
-			{
 			if(class_exists($class=$route->getRouteClass()))
 			{
 				$controller = new $class();
@@ -117,10 +115,6 @@ class RouteProcessor
 					)
 				);
 			}
-		} catch(\Exception $e)
-		{
-			$errors = $e->getMessage();
-		}
 		
 		
 		switch($route->getOutputHandler())
