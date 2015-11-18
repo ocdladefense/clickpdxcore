@@ -15,11 +15,15 @@ class ControllerBase
 	 */
 	private $container;
 	
+	protected $request;
+	
 	protected $logArray = array();
 	
 	public function setContainer($container)
 	{
+		global $request;
 		$this->container = $container;
+		$this->request = $request;
 	}   
 	
 	protected function mail($recipients,$subject,$message)

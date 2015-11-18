@@ -44,7 +44,10 @@ function get_mysql_connect_params($p,$cNew=false)
  * db_query("SELECT * FROM {downloads} WHERE file_creation_time 
  *		IS NULL AND entry_time >= :past
  *		AND memberid != 0",array('past'=>$past),'pdo')->fetchAll();
- *
+ * 
+ * See: http://docs.doctrine-project.org/projects/
+ doctrine-dbal/en/latest/reference/data-retrieval-and-manipulation.html
+ * for more information.
  *
  * When using the 'MySQL' driver through the core library:
  * ----------------------------------------
