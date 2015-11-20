@@ -239,11 +239,14 @@ function clickpdx_process_router($path)
 	 * Okay, everything checks out,
 	 * the user has access and we've established there is a valid callback.
 	 */
-	$vars['statuses'] = $statuses;
-	$vars['title'] = $route->getTitle();
-	$vars['theme'] = $route->getTheme();
-	
-
+	$vars = array(
+		'statuses' 		=> $statuses,
+		'title'				=> $route->getTitle(),
+		'theme'				=> $route->getTheme(),
+		'site_name'		=> system_get_setting('site_name'),
+		'meta_keywords' => $route->getMeta('keywords'),
+		'meta_description' => $route->getMeta('description')
+	);
 	
 	RouteProcessor::processOutputHandler($route,$vars);
 }

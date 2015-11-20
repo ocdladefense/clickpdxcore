@@ -56,7 +56,7 @@ function system_get_site_url()
 
 function system_get_setting($settingName)
 {
-	global $homepage;
+	global $homepage, $site_name;
 	
 	switch($settingName)
 	{
@@ -65,6 +65,9 @@ function system_get_setting($settingName)
 			break;
 		case 'homepage':
 			return $homepage;
+			break;
+		case 'site_name':
+			return $site_name;
 			break;
 	}	
 	throw new Exception("Could not locate the system setting, {$settingsName}.");

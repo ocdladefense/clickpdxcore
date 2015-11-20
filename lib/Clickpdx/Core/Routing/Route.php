@@ -126,6 +126,10 @@ class Route
 		$this->files 						= $this->initFiles($menuItem);
 		$this->modulePath 			= $menuItem['module_path'];
 		$this->parameters				= $menuItem['parameters'];
+		$this->meta							= array(
+										'keywords' => $menuItem['meta_description'],
+										'description' => $menuItem['meta_keywords']
+										);
 	}
 	
 	private function processPathArguments($page_arguments=null)
@@ -187,6 +191,11 @@ class Route
 	public function getTitle()
 	{
 		return $this->title;
+	}
+	
+	public function getMeta($type)
+	{
+		return isset($this->meta[$type])?$this->meta[$type]:'';
 	}
 	
 	public function hasValidCallback()
