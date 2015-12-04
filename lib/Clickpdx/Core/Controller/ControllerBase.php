@@ -19,12 +19,20 @@ class ControllerBase
 	
 	protected $logArray = array();
 	
+	protected $user;
+	
 	public function setContainer($container)
 	{
-		global $request;
+		global $request, $user;
+		$this->user = $user;
 		$this->container = $container;
 		$this->request = $request;
-	}   
+	}
+	
+	protected function getUser()
+	{
+		return $this->user;
+	}
 	
 	protected function mail($recipients,$subject,$message)
 	{
