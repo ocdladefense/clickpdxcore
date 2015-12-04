@@ -17,16 +17,31 @@ class ControllerBase
 	
 	protected $request;
 	
+	private $baseUrl;
+	
 	protected $logArray = array();
 	
 	protected $user;
 	
+	protected $settings = array();
+	
 	public function setContainer($container)
 	{
-		global $request, $user;
+		global $request, $user, $base_url;
 		$this->user = $user;
 		$this->container = $container;
 		$this->request = $request;
+		$this->baseUrl = $base_url;
+	}
+	
+	public function initSettings(array $settings)
+	{
+		$this->settings = $settings;
+	}
+	
+	protected function setting($key,$value=null)
+	{
+		return $this->settings[$key];
 	}
 	
 	protected function getUser()
@@ -38,6 +53,11 @@ class ControllerBase
 	{
 		$mailer = $this->container->getMailer($recipients,$subject,$message);
 		return $mailer->send();
+	}
+	
+	protected function createUrl($url)
+	{
+		return $this->baseUrl . '/' . $url;
 	}
 	
 	protected function log($msg)
