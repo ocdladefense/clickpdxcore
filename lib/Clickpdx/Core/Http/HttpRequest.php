@@ -126,7 +126,7 @@ class HttpRequest {
 		
 	public function prepareRequestUri() {
 		$GetQ = $_GET['q'];
-		if( empty($GetQ)) {
+		if( empty($GetQ)) {  
 			$this->RequestUri = 'form_processor_v_0_1_a';
 		}
 		else $this->RequestUri = $GetQ;
