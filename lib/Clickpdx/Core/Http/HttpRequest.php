@@ -110,6 +110,16 @@ class HttpRequest {
 		return $this->RequestMethod;
 	}
 	
+	public function isPost()
+	{
+		return $this->RequestMethod==="POST";
+	}
+	
+	public function isGet()
+	{
+		return $this->RequestMethod==="GET';
+	}
+	
 	public function setRequestUri( String $uri ) {
 		$this->RequestUri = $uri;
 	}
