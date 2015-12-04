@@ -117,7 +117,7 @@ class HttpRequest {
 	
 	public function isGet()
 	{
-		return $this->RequestMethod==="GET';
+		return $this->RequestMethod==="GET";
 	}
 	
 	public function setRequestUri( String $uri ) {
