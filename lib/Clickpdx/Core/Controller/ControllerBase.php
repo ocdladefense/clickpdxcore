@@ -55,6 +55,11 @@ class ControllerBase
 		return $mailer->send();
 	}
 	
+	protected function redirect($url)
+	{
+		\clickpdx_goto($url);
+	}
+	
 	protected function createUrl($url)
 	{
 		return $this->baseUrl . '/' . $url;
