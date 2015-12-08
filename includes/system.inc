@@ -126,7 +126,7 @@ function get_statuses( $s = array() ) {
 function base_path() {
 	global $base_path;
 	if(isset($base_path)) return $base_path;
-	else return '';
+	else return '/';
 }
 
 

@@ -57,12 +57,12 @@ class ControllerBase
 	
 	protected function redirect($url)
 	{
-		\clickpdx_goto($url);
+		\clickpdx_goto(\base_path().$url);
 	}
 	
 	protected function createUrl($url)
 	{
-		return $this->baseUrl . '/' . $url;
+		return $this->baseUrl . \base_path() . $url;
 	}
 	
 	protected function log($msg)
