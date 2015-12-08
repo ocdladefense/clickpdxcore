@@ -31,6 +31,13 @@ class Route
 	private $access;
 	
 	/**
+	 * var accessArguments
+	 *
+	 * Arguments passed to the access callback.
+	 */
+	private $accessArguments;
+	
+	/**
 	 * var title
 	 *
 	 * The plain text title associate with this route.
@@ -119,6 +126,7 @@ class Route
 		$this->routerKey 				= $routerKey;
 		$this->routeClass				= $menuItem['routeClass'];
 		$this->access						= $menuItem['access'];
+		$this->accessArguments	= $menuItem['access arguments'];
 		$this->routeCallback 		= $menuItem['page callback'];
 		$this->routeArguments		= $this->processPathArguments($menuItem['page arguments']);
 		$this->outputHandler 		= $menuItem['output_handler'];
@@ -179,6 +187,17 @@ class Route
 	{
 		return $this->access;
 	}
+	
+	public function getAccessArguments()
+	{
+		return $this->accessArguments;
+	}
+	
+	public function hasAccessArguments()
+	{
+		return !empty($this->accessArguments);
+	}
+	
 	private function getControllerClass()
 	{
 		return $this->routeClass;

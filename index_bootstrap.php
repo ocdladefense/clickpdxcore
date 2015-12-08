@@ -26,6 +26,7 @@ require( DRUPAL_ROOT.'/core/includes/theme.inc' );
 require( DRUPAL_ROOT.'/core/includes/server.inc' );
 require( DRUPAL_ROOT.'/core/includes/filters.inc' );
 require( DRUPAL_ROOT.'/core/includes/node.inc' );
+require( DRUPAL_ROOT.'/core/includes/user.inc' );
 
 
 require(DRUPAL_ROOT.'/vendor/clickpdx/ocdla/database/DBQuery.php');
