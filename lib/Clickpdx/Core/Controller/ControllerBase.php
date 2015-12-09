@@ -25,6 +25,8 @@ class ControllerBase
 	
 	protected $settings = array();
 	
+	private $themeEngine;
+	
 	public function setContainer($container)
 	{
 		global $request, $user, $base_url;
@@ -53,6 +55,22 @@ class ControllerBase
 	{
 		$mailer = $this->container->getMailer($recipients,$subject,$message);
 		return $mailer->send();
+	}
+	
+	protected function error($message)
+	{
+		return trigger_error($message, E_USER_WARNING);
+	}
+
+	protected function getProduct($templateName,$vars)
+	{
+		$product = new OcdlaProduct();
+		return $this->themeEngine->render('twig.html', array( 'product' => $product ));
+	}
+
+	protected function render($templateName,$vars)
+	{
+		return $this->themeEngine->render($templateName,$vars);
 	}
 	
 	protected function redirect($url)

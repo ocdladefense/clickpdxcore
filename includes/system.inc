@@ -194,7 +194,6 @@ function drupal_get_files_dir()
 function drupal_output_handler($type = 'xhtml')
 {	
 	$headers = array('cachecontrol','contenttype');
-	tail(drupal_get_headers($headers, $type));
 	foreach( drupal_get_headers( $headers, $type ) AS $header ) {
 		header( $header );
 	};
@@ -281,7 +280,7 @@ function xml_deliver($page_callback_result,$type='xml')
 function json_deliver($page_callback_result, $type = 'json')
 {
 	// $page_callback_result needs to be a PHP array
-	$json = json_encode( $page_callback_result );
+	$json = json_encode($page_callback_result);
 	header("Content-Type: application/json; charset=UTF-8");
 	header("Cache-Control: no-cache, must-revalidate");
 	ob_start();

@@ -65,6 +65,24 @@ class RouteProcessor
 		return empty($route->getOutputHandler()) ? self::DEFAULT_OUTPUT_HANDLER : $route->getOutputHandler();
 	}
 	
+	private static function processErrors($e,$route)
+	{
+		switch($route->getOutputHandler())
+		{
+			case 'ajax':
+				\ajax_deliver($out);
+				break;
+			case 'json':
+				\json_deliver(array('error'=>$e->getMessage()));
+				break;
+			case 'xml':
+				\xml_deliver($out);
+				break;
+			default:
+		}
+		clickpdx_set_http_status("Internal Server Error",500);
+	}
+	
 //	public static function argSubstitution($
 	/*
 	// 	$path_parts = explode('/', $path);
@@ -92,6 +110,8 @@ class RouteProcessor
 		 * capture those into $out and print them on the page.
 		 */
 		 // print entity_toString(RouteProcessor::processRouteParameters($route));exit;
+		try
+		{
 			if(class_exists($class=$route->getRouteClass()))
 			{
 				$controller = new $class();
@@ -115,6 +135,34 @@ class RouteProcessor
 					)
 				);
 			}
+		}
+		/**
+		 * Process fatal errors
+		 *
+		 * By "fatal" we simply mean that something
+		 * has happened whereby the route should return only an 
+		 * error code.  Otherwise, other exceptions and errors
+		 * should be processed, logged and useful output could still be returned
+		 * to the client.
+		 */
+		catch(RouteException $e)
+		{
+			self::processErrors($e,$route);
+			exit;
+		}
+		/**
+		 * Other exceptions
+		 *
+		 * We deliberately do not catch other exceptions.
+		 * Instead we let those fall through.
+		 * Alternatively, we could catch them and display them in a red box.
+		 */
+		/*
+		catch(\Exception $e)
+		{
+			$errors = $e->getMessage();
+		}
+		*/
 		
 		
 		switch($route->getOutputHandler())

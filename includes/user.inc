@@ -6,6 +6,7 @@ function user_has_role($string, $uid=null)
 {
 	global $user;
 	$u = isset($uid) ? user_load($uid) : $user;
+	if($string!=='admin'&&user_has_role('admin')) return true;
 	return in_array($string, $u->getRoles());
 }
 
