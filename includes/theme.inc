@@ -23,7 +23,6 @@ function drupal_get_headers( $list = array('contenttype'), $type = NULL) {
 		'xhtml'=>'application/xhtml+xml',
 		'html'=>'text/html'
 	);
-	tail('$type is: ' . $type );
 	
 	switch($type)
 	{
@@ -40,9 +39,7 @@ function drupal_get_headers( $list = array('contenttype'), $type = NULL) {
 
 	// find out which mime types are allowed by the server
 	$accepted_types = $_SERVER['HTTP_ACCEPT'];
-	tail( 'HTTP_ACCEPT types are: ' . $accepted_types );
-	tail( 'Allowed types are: ' . print_r($allowed_types, TRUE));
-	
+
 	$mime_types = array_merge($mime_types, $allowed_types);
 	if (stristr($_SERVER["HTTP_ACCEPT"], $mime_types['xhtml'])) {
 		$mime_type = $mime_types['xhtml'];
@@ -77,8 +74,7 @@ function drupal_get_headers( $list = array('contenttype'), $type = NULL) {
 			$header_headers[] = $headers[$key]['value'][0];
 		}
 	}
-	
-	tail($header_headers);
+
 	return $header_headers;
 }
 
@@ -364,9 +360,6 @@ function theme($hook, $variables = array()) {
 		
 		if (!$found) throw new Exception( "No templates found for __{$hook}__." );
 		// Render the output using the template file.
-		
-		// we should have looped through theme_hook_suggestions to make sure one exists
-		// tail( 'Info for this themeable item is: '. print_r( $info, TRUE ));
 
 		$output = $render_function($template_file, $variables);
 	}

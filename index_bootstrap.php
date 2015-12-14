@@ -11,7 +11,7 @@ require_once DRUPAL_ROOT .'/core/includes/autoload.inc';
 require_once DRUPAL_ROOT .'/core/autoload.php';
 require_once DRUPAL_ROOT .'/vendor/autoload.php';
 
-
+require( DRUPAL_ROOT.'/core/includes/errors.inc' );
 require( DRUPAL_ROOT.'/core/includes/database.inc' );
 require( DRUPAL_ROOT.'/core/includes/session.inc' );
 require( DRUPAL_ROOT.'/core/includes/string.inc' );
@@ -27,6 +27,7 @@ require( DRUPAL_ROOT.'/core/includes/server.inc' );
 require( DRUPAL_ROOT.'/core/includes/filters.inc' );
 require( DRUPAL_ROOT.'/core/includes/node.inc' );
 require( DRUPAL_ROOT.'/core/includes/user.inc' );
+
 
 
 require(DRUPAL_ROOT.'/vendor/clickpdx/ocdla/database/DBQuery.php');
