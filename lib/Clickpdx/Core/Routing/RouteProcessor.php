@@ -1,4 +1,5 @@
 <?php
+use Clickpdx\Core\Output;
 
 namespace Clickpdx\Core\Routing;
 
@@ -112,17 +113,37 @@ class RouteProcessor
 		 // print entity_toString(RouteProcessor::processRouteParameters($route));exit;
 		try
 		{
+			$out = '';
+			
+			
 			if(class_exists($class=$route->getRouteClass()))
 			{
-				$controller = new $class();
-				$controller->setContainer(new \Clickpdx\Core\DependencyInjection\DependencyInjectionContainer());
-				$out = call_user_func_array(
-					array($controller,$route->getRouteCallback()),
-					array_merge(
-						array_reverse(RouteProcessor::processRouteParameters($route)),
-						$route->getRouteArguments()
-					)
-				);
+
+				/**
+				 * Is the outClass renderable?
+				 * If so, just render it and return that,
+				 * no further processing is necessary.
+				 */
+				if(self::isRenderable($class))
+				{
+					$classOut = new $class($route->getRouteArguments());
+					$out = $classOut->render();
+				}
+				
+				
+				
+				else
+				{
+					$routeType = new $class();	
+					$routeType->setContainer(new \Clickpdx\Core\DependencyInjection\DependencyInjectionContainer());
+					$out = call_user_func_array(
+						array($routeType,$route->getRouteCallback()),
+						array_merge(
+							array_reverse(RouteProcessor::processRouteParameters($route)),
+							$route->getRouteArguments()
+						)
+					);
+				}
 			} 
 			else
 			{
@@ -201,4 +222,9 @@ class RouteProcessor
 		}
 	}
 
+	private static function isRenderable($class)
+	{
+		//print entity_toString(class_implements($class));exit;
+		return in_array('Clickpdx\Core\Output\Renderable',class_implements($class));
+	}
 }

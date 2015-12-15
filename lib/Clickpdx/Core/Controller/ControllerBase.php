@@ -53,8 +53,8 @@ class ControllerBase
 	
 	protected function mail($recipients,$subject,$message)
 	{
-		$mailer = $this->container->getMailer($recipients,$subject,$message);
-		return $mailer->send();
+		$mailer = $this->container->getMailer();
+		return $mailer->send($recipients,$subject,$message);
 	}
 	
 	protected function error($message)

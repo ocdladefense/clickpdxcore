@@ -4,9 +4,9 @@ function entity_toString($entity)
 {
 	if(!is_array($entity))
 	{
-		return $entity;
+		return htmlentities($entity);
 	}
-	return "<pre>".print_r($entity,true)."</pre>";
+	return "<pre>".htmlentities(print_r($entity,true))."</pre>";
 }
 
 function tokenize($str,$tokens)

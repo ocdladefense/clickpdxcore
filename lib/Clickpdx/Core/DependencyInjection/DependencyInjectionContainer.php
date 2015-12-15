@@ -30,19 +30,19 @@ class DependencyInjectionContainer
 	}
 	
 	
-	public function getMailTransportSettings()
-	{
-		
-	}
+	public function getMailTransportSettings() {}
 	
-	public function getMailer($recipients, $subject=null, $message=null)
+	public function getMailer()
 	{
     if (isset(self::$shared['mailer']))
     {
       return self::$shared['mailer'];
     }
-		$recipients = isset($recipients)?$recipients:$this->parameters['mailer.defaultRecipient'];
-		return self::$shared['mailer'] = 
-			new \Clickpdx\Core\Mail($recipients,$subject,$message);
+		$settings = array(
+			'domain' => $_SERVER['SERVER_NAME'],
+			'from' => EMAIL_FROM,
+			'reply_to' => EMAIL_RETURN_PATH
+		);
+		return self::$shared['mailer'] = \Clickpdx\Core\Mail::newFromMailerAttributes($settings);
 	}
 }

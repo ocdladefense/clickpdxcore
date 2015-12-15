@@ -128,7 +128,7 @@ class Route
 		$this->access						= $menuItem['access'];
 		$this->accessArguments	= $menuItem['access arguments'];
 		$this->routeCallback 		= $menuItem['page callback'];
-		$this->routeArguments		= $this->processPathArguments($menuItem['page arguments']);
+		$this->routeArguments		= $this->processPathArguments($menuItem['page arguments'],$menuItem['routeArguments']);
 		$this->outputHandler 		= $menuItem['output_handler'];
 		$this->title 						= $menuItem['title'];
 		$this->files 						= $this->initFiles($menuItem);
@@ -140,8 +140,12 @@ class Route
 										);
 	}
 	
-	private function processPathArguments($page_arguments=null)
+	private function processPathArguments($page_arguments=null,$routeArguments=null)
 	{
+		if(isset($routeArguments))
+		{
+			return $routeArguments;
+		}
 		if(!isset($page_arguments))
 		{
 			return self::getPathArguments($this->path);
@@ -198,10 +202,11 @@ class Route
 		return !empty($this->accessArguments);
 	}
 	
-	private function getControllerClass()
+	public function getRouteClass()
 	{
 		return $this->routeClass;
 	}
+	
 	public function getRouteArguments()
 	{
 		return $this->routeArguments;
@@ -219,21 +224,19 @@ class Route
 	
 	public function hasValidCallback()
 	{
-		return function_exists($this->routeCallback)||$this->hasValidControllerClassCallback();
+		return function_exists($this->routeCallback)||$this->hasValidRouteClassCallback();
 	}
-	private function hasValidControllerClassCallback()
+	
+	private function hasValidRouteClassCallback()
 	{
+		return class_exists($this->getRouteClass());
 		return class_exists($this->getControllerClass())&&
 			method_exists($this->getControllerClass(),$this->getRouteCallback());
 	}
+	
 	public function getRouteCallback()
 	{
 		return $this->routeCallback;
-	}
-	
-	public function getRouteClass()
-	{
-		return $this->routeClass;
 	}
 	
 	public function getOutputHandler()

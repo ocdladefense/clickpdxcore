@@ -4,56 +4,90 @@ namespace Clickpdx\Core;
 
 class Mail
 {
-	private $recipients;
+	/**
+	 * Static variables
+	 *
+	 * These members should be declared as static since they will
+	 * most likely remain the same throughout multiple emails.
+	 */
+	private static $domain;
 	
-	private $from;
+	private static $headers;
+
+	private static $from;
+	
+	private static $sender;
+	
+	private $recipients;
 	
 	private $subject;
 	
-	private $headers;
-	
 	private $message;
 	
-	private $HeadersText;
-	
-	private $sender = 'admin@members.ocdla.org';
-	
-	public function __construct($recipients = array(), $subject=null, $message = null)
+	public static function newFromMailerAttributes(array $settings)
 	{
-		$this->domain = $_SERVER['SERVER_NAME'];
-		$this->headers = array(
+		self::$domain = $settings['domain'];
+		self::$headers = array(
 			'MIME-Version: 1.0',
-			'Content-type: text/plain; charset=utf-8',
+			'Content-Type: text/plain; charset=utf-8',
 			'Content-Disposition: inline',
-			"From: {$this->sender}"
+			"Return-Path: {$settings['reply_to']}",
+			"Reply-To: {$settings['reply_to']}",
+			"From: {$settings['from']}",
 		);
+		self::setSender($settings['reply_to']);
+		self::setFrom($settings['from']);
+		return new Mail;
+	}
 
-		$this->recipients = is_array($recipients)?implode(',',$recipients):$recipients;
-		
-		$messageId = "Message-Id: <".time() .'-' . md5($this->sender . $this->recipients) . '@'.$this->domain . ">";
-		
-		$this->addHeader($messageId);
-		$this->subject = $subject;
-		$this->message = $message;
-	}
-	
-	public function addHeader($string)
+	public function addHeaders($header)
 	{
-		$this->headers[]=$string;
+		$header = is_array($header)?$header:array($header);
+		return array_merge(self::$headers,$header);
 	}
 	
-	public function setSender($sender)
+	private static function getSender()
 	{
-		$this->sender = $sender;
+		return self::$sender;
 	}
 	
-	public function setDomain($domain)
+	private static function getFrom()
 	{
-		$this->domain = $domain;
+		return self::$from;
 	}
 	
-	public function send()
+	private static function setSender($sender)
+	{
+		self::$sender = $sender;
+	}
+	
+	private static function setFrom($from)
+	{
+		self::$from = $from;
+	}
+	
+	private static function formatHeaders($headers)
+	{
+		return implode("\r\n",$headers);
+	}
+	
+	private static function getSendmailOptions()
+	{
+		return "-f".self::getSender();
+	}
+	
+	public function send($recipients,$subject,$message)
 	{	
-		return \mail($this->recipients, $this->subject, $this->message, implode("\r\n",$this->headers));
+		$recipients = is_array($recipients)?implode(',',$recipients):$recipients;
+		
+		$messageId = "Message-Id: <".time() .'-' . md5(self::getSender() . $recipients) . '@'.self::$domain . ">";
+		$headers = $this->addHeaders($messageId);
+
+		return \mail($recipients, $subject, $message, self::formatHeaders($headers), self::getSendmailOptions());
+	}
+	
+	public function __toString()
+	{
+		return \entity_toString(self::$headers);
 	}
 }

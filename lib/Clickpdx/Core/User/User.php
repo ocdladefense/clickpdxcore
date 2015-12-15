@@ -62,15 +62,21 @@ class User
 	  	return false;
 	  }
 	}	
+	
 	public function getData()
 	{
 		return $this->sfData;
 	}
+	
+	public function setData($data)
+	{
+		$this->data = $data;
+	}
+	
 	public static function newFromUsername($username)
 	{
 		return self::loadFromUsername($username);
 	}
-	
 	
 	private function setSomeValues()
 	{
@@ -98,14 +104,15 @@ class User
 	{
 		$u=new User();
 		$u->setUserId($uid);
-		$stmt = db_query('SELECT autoId, id AS memberId, is_admin, is_member, name_first, name_last FROM {members} WHERE autoId = :autoId',
-			array(':autoId'=>$uid),
+		$stmt = db_query('SELECT m.autoId, m.id AS memberId, m.is_admin, m.is_member, m.name_first, m.name_last, ci.value AS email FROM {members} m LEFT JOIN {member_contact_info} ci ON(ci.contact_id=m.id AND ci.type=:email_type) WHERE m.autoId = :autoId',
+			array('autoId'=>$uid,'email_type'=>'email'),
 			'pdo',
 			false
 		);
 		if($stmt&&$stmt->rowCount())
 		{
 			$ret=$stmt->fetch();
+			$u->setData($ret);
 			$u->setUserId($ret['autoId']);
 			$u->setMemberId($ret['memberId']);
 			$u->setFirstName($ret['name_first']);
@@ -119,6 +126,11 @@ class User
 			$u->setValidUser(false);
 		}
 		return $u;
+	}
+	
+	public function getEmail()
+	{
+		return $this->data['email'];
 	}
 	
 	private function addRole($rName)
@@ -135,8 +147,8 @@ class User
 	{
 		$u=new User();
 		$u->setUsername($username);
-		$stmt = db_query('SELECT autoId, id AS memberId, name_first, name_last FROM {members} WHERE username = :username',
-			array(':username'=>$username),
+		$stmt = db_query('SELECT m.autoId, id AS m.memberId, m.name_first, m.name_last, ci.value AS email FROM {members} m LEFT JOIN {member_contact_info} ci ON(ci.contact_id=m.id AND ci.type=:email_type) WHERE username = :username',
+			array('username'=>$username,'email_type'=>'email'),
 			'pdo',
 			false
 		);
@@ -188,10 +200,12 @@ class User
 	{
 		$this->lastName=$lastName;
 	}
+	
 	public function setEmail($email)
 	{
 		$this->email=$email;
 	}
+	
 	public function __construct($params=null)
 	{
 		if(!isset($params)||!count($params))
