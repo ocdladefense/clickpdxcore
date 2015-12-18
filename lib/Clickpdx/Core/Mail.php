@@ -79,9 +79,10 @@ class Mail
 	public function send($recipients,$subject,$message)
 	{	
 		$recipients = is_array($recipients)?implode(',',$recipients):$recipients;
-		
-		$messageId = "Message-Id: <".time() .'-' . md5(self::getSender() . $recipients) . '@'.self::$domain . ">";
-		$headers = $this->addHeaders($messageId);
+		$rand = time() .'-' . md5(self::getSender() . $recipients) . '@'.self::$domain;
+		$messageId = "Message-Id: <{$rand}>";
+		$refId = "X-Entity-Ref-ID: <{$rand}>";
+		$headers = $this->addHeaders(array($messageId,$refId));
 
 		return \mail($recipients, $subject, $message, self::formatHeaders($headers), self::getSendmailOptions());
 	}

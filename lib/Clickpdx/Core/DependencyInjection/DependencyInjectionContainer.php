@@ -29,6 +29,40 @@ class DependencyInjectionContainer
 		$this->parameters = $parameters;
 	}
 	
+	/**
+	 * Session init.
+	 *
+	 * Initialize a Session for this user/User-Agent.
+	 */
+	public function getSessionHandler()
+	{
+    if (isset(self::$shared['sessionHandler']))
+    {
+      return self::$shared['sessionHandler'];
+    }
+		return self::$shared['sessionHandler'] = new \Ocdla\Session();
+	}
+	
+	/**
+	 *
+
+	function user_load($uid=null)
+	{
+		global $sess;
+		$uid = isset($uid)?$uid:$sess->getUserID();
+		return User::newFromUid($uid);
+	}
+	*/
+	public function getUserHandler()
+	{
+    if (isset(self::$shared['userHandler']))
+    {
+      return self::$shared['userHandler'];
+    }
+    \Clickpdx\Core\User\User::setSessionHandler($this->getSessionHandler());
+		return self::$shared['userHandler'] = new \Clickpdx\Core\User\User();
+	}
+	
 	
 	public function getMailTransportSettings() {}
 	

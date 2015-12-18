@@ -265,6 +265,17 @@ function ajax_deliver($page_callback_result, $type = 'html')
 	}
 }
 
+function html_deliver($page_callback_result, $type = 'html')
+{
+	header("Content-Type: text/html; charset=UTF-8");
+	header("Cache-Control: no-cache, must-revalidate");
+	ob_start();
+	print $page_callback_result;
+	$length = ob_get_length();
+	header('Content-Length: ' . $length);
+	ob_end_flush();
+}
+
 
 function xml_deliver($page_callback_result,$type='xml')
 {

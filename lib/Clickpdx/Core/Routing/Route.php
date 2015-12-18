@@ -129,7 +129,7 @@ class Route
 		$this->accessArguments	= $menuItem['access arguments'];
 		$this->routeCallback 		= $menuItem['page callback'];
 		$this->routeArguments		= $this->processPathArguments($menuItem['page arguments'],$menuItem['routeArguments']);
-		$this->outputHandler 		= $menuItem['output_handler'];
+		$this->outputHandler 		= $this->parseOutputHandler($menuItem['output_handler'],$menuItem['output handler']);
 		$this->title 						= $menuItem['title'];
 		$this->files 						= $this->initFiles($menuItem);
 		$this->modulePath 			= $menuItem['module_path'];
@@ -138,6 +138,11 @@ class Route
 										'keywords' => $menuItem['meta_description'],
 										'description' => $menuItem['meta_keywords']
 										);
+	}
+	
+	private function parseOutputHandler($arg1=null,$arg2=null)
+	{
+		return !isset($arg2)?$arg1:$arg2;
 	}
 	
 	private function processPathArguments($page_arguments=null,$routeArguments=null)

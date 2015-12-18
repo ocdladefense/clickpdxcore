@@ -5,9 +5,21 @@ class HtmlOutput implements Renderable
 {
 	private $renderer;
 	
+	private $container;
+	
 	public function setRenderer($renderer)
 	{
 		$this->renderer($renderer);
+	}
+	
+	protected function getRenderEngine()
+	{
+		return $this->container->getRenderer();
+	}
+	
+	public function setContainer($container)
+	{
+		$this->container = $container;
 	}
 	
 	private function formatDummyLink($title,$url)

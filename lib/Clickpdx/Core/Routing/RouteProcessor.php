@@ -127,6 +127,7 @@ class RouteProcessor
 				if(self::isRenderable($class))
 				{
 					$classOut = new $class($route->getRouteArguments());
+					$classOut->setContainer(self::getDIC());
 					$out = $classOut->render();
 				}
 				
@@ -135,7 +136,7 @@ class RouteProcessor
 				else
 				{
 					$routeType = new $class();	
-					$routeType->setContainer(new \Clickpdx\Core\DependencyInjection\DependencyInjectionContainer());
+					$routeType->setContainer(self::getDIC());
 					$out = call_user_func_array(
 						array($routeType,$route->getRouteCallback()),
 						array_merge(
@@ -188,6 +189,12 @@ class RouteProcessor
 		
 		switch($route->getOutputHandler())
 		{
+			case 'html-file':
+				html_deliver($out);
+				break;
+			case 'file':
+				file_deliver($out);
+				break;
 			case 'ajax':
 				ajax_deliver($out);
 				break;
@@ -217,9 +224,17 @@ class RouteProcessor
 					// render the $regions, $menus, $header and $footer
 					\drupal_render_page($vars);
 				}
-				else throw new \Exception('No output handler was specified.');
+				else
+				{
+					throw new \Exception('No output handler was specified.');
+				}
 				break;
 		}
+	}
+
+	private static function getDIC()
+	{
+		return new \Clickpdx\Core\DependencyInjection\DependencyInjectionContainer();
 	}
 
 	private static function isRenderable($class)
