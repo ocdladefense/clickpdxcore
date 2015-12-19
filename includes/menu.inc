@@ -62,7 +62,7 @@ function clickpdx_menu_regex_router_path($router_path)
 	$patterns[1] = '/%\w+/mis';
 	
 	$replacements[0] = '\/';
-	$replacements[1] = '([\w\-\s\'\"+_\.]+)';
+	$replacements[1] = '([\w\-\s\%\'\"+_\.]+)';
 
 	
 	$url_pattern = "/^".preg_replace( $patterns, $replacements, $router_path ) . "$/mis";

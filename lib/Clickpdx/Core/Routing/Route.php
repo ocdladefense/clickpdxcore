@@ -2,9 +2,17 @@
 
 namespace Clickpdx\Core\Routing;
 
+use \simpleformats;
 
 class Route
 {
+	/**
+	 * const PATH_SEPARATOR
+	 *
+	 * self::PATH_SEPARATOR
+	 */
+	const PATH_SEPARATOR = '/';
+	
 	/**
 	 * var routerKey
 	 *
@@ -128,7 +136,7 @@ class Route
 		$this->access						= $menuItem['access'];
 		$this->accessArguments	= $menuItem['access arguments'];
 		$this->routeCallback 		= $menuItem['page callback'];
-		$this->routeArguments		= $this->processPathArguments($menuItem['page arguments'],$menuItem['routeArguments']);
+		$this->routeArguments		= $this->fetchArgumentRules($menuItem['page arguments'],$menuItem['routeArguments']);
 		$this->outputHandler 		= $this->parseOutputHandler($menuItem['output_handler'],$menuItem['output handler']);
 		$this->title 						= $menuItem['title'];
 		$this->files 						= $this->initFiles($menuItem);
@@ -145,16 +153,59 @@ class Route
 		return !isset($arg2)?$arg1:$arg2;
 	}
 	
-	private function processPathArguments($page_arguments=null,$routeArguments=null)
+	public function processRouteArguments()
+	{
+		$pathArgs = self::getPathArguments($this->path);
+		
+		$rules = $this->getArgumentRules();
+		// Okay, process the arguments
+		// $params = array_map(
+		$p = array();
+		foreach($rules as $key => $rule)
+		{
+			if(is_int($key)&&is_int($rule))
+			{
+				$p[] = $this->getPathArgument($rule);
+				continue;
+			}
+			if(is_callable($key))
+			{
+				$rule=is_array($rule)?$rule:array($rule);
+				$p[] = call_user_func_array($key,$rule);
+				continue;
+			}
+			else $p[] = $rule;
+		}
+		return $p;
+	}
+	
+	private function getPathArgument($index)
+	{
+		return $this->fetchPathArguments()[$index];
+	}
+	
+	private function getArgumentRules()
+	{
+		return $this->routeArguments;
+	}
+	
+	private function fetchArgumentRules($page_arguments=null,$routeArguments=null)
 	{
 		if(isset($routeArguments))
 		{
 			return $routeArguments;
 		}
-		if(!isset($page_arguments))
-		{
-			return self::getPathArguments($this->path);
-		}
+		else return $page_arguments;
+	}
+	
+	private function fetchPathArguments()
+	{
+		return self::getPathArguments($this->path);
+	}
+	
+	public static function getPathArguments($path)
+	{
+		return explode(self::PATH_SEPARATOR,$path);
 	}
 	
 	public function getParameters()
@@ -162,20 +213,17 @@ class Route
 		return $this->parameters;
 	}
 	
-	public static function getPathArguments($path)
-	{
-		return explode('/',$path);
-	}
-	
 	public function getModulePath()
 	{
 		return $this->modulePath;
 	}
+	
 	public function getIncludes()
 	{
 		if(is_null($this->files)) return array();
 		return is_array($this->files)?$this->files:array($this->files);
 	}
+	
 	private function initFiles($menuItem)
 	{
 		if(empty($menuItem['files'])) return null;
@@ -210,11 +258,6 @@ class Route
 	public function getRouteClass()
 	{
 		return $this->routeClass;
-	}
-	
-	public function getRouteArguments()
-	{
-		return $this->routeArguments;
 	}
 
 	public function getTitle()
@@ -269,5 +312,20 @@ class Route
 	
 		print entity_toString($routerArgs);exit;
 	}	
+	
+	public function __toString()
+	{
+		$arr = array(
+			'Path is: ' . $this->path,
+			'Route class is: ' . $this->routeClass,
+			'Route callback is: ' . $this->getRouteCallback(),
+			'Path arguments are: ' .\simpleFormats\simpleList($this->fetchPathArguments()),
+			'Argument rules are: ' . \simpleFormats\simpleList($this->getArgumentRules()),
+			'Processed arguments are: ' . \simpleFormats\simpleList($this->processRouteArguments()),
+			'Theme is: ' . $this->theme,
+			'Parameters are: ' .\simpleFormats\simpleList($this->getParameters()),
+		);
+		return "<h2>Path info for: {$this->path}</h2><p style='background-color:#ccc;padding:10px;'>".\simpleFormats\simpleList($arr,'br')."</p>";
+	}
 	
 }

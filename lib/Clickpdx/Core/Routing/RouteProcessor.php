@@ -84,25 +84,20 @@ class RouteProcessor
 		clickpdx_set_http_status("Internal Server Error",500);
 	}
 	
-//	public static function argSubstitution($
-	/*
-	// 	$path_parts = explode('/', $path);
-		$routerArgs = array_map($route->getRouteArguments(),function($arg){
-			return is_int($arg)?$path_parts[$arg]:$arg;
-		});
-		 foreach( as $arg)
-		 {
-		 	// page arguments is a special array
-		 	// whose members have various meanings
-		 	// if an array member is an integer, then it specifies a part of the path
-		 	// otherwise if it is a string, object or array, then we pass that literal or variable along as is
-		 	// for example, we can pass $user to a page callback
-		 	if() $routerArgs[] = ;
-		 	else $routerArgs[] = $arg;
-		 }
-		 */
+	private static function doRoute($routeInstance,$callback,$routeArguments,$params)
+	{
+		return call_user_func_array(
+			array($routeInstance,$callback),
+			array_merge(
+				array_reverse($params),
+				$routeArguments
+			)
+		);
+	}
+		 
 	public static function processOutputHandler($route,$vars)
 	{	
+		// print $route;exit;
 		/**
 		 * Invoke the callback.
 		 *
@@ -130,30 +125,27 @@ class RouteProcessor
 					$classOut->setContainer(self::getDIC());
 					$out = $classOut->render();
 				}
-				
-				
-				
 				else
 				{
-					$routeType = new $class();	
-					$routeType->setContainer(self::getDIC());
-					$out = call_user_func_array(
-						array($routeType,$route->getRouteCallback()),
-						array_merge(
-							array_reverse(RouteProcessor::processRouteParameters($route)),
-							$route->getRouteArguments()
-						)
-					);
+					$controller = new $class();	
+					$controller->setContainer(self::getDIC());
+					$callback = $route->getRouteCallback();
+					$routeArguments = $route->processRouteArguments();
+					$params = RouteProcessor::processRouteParameters($route);
+					$out = RouteProcessor::doRoute($controller,$callback,$routeArguments,$params);
 				}
 			} 
 			else
 			{
-
+				$params = RouteProcessor::processRouteParameters($route);
+				// print $route;
+				// print \entity_toString($params);
+				
 				$out	=	call_user_func_array(
 					$route->getRouteCallback(),
 					array_merge(
-						array_reverse(RouteProcessor::processRouteParameters($route)),
-						$route->getRouteArguments()
+						array_reverse($params),
+						$route->processRouteArguments()
 					)
 				);
 			}
@@ -211,7 +203,7 @@ class RouteProcessor
 					{
 						$vars['page']['content']		= $out;
 						$vars['page']['errors'] 		= $errors;
-						$vars['route_arguments'] 		= $route->getRouteArguments();
+						$vars['route_arguments'] 		= $route->processRouteArguments();
 					}
 					catch(Exception $e)
 					{
