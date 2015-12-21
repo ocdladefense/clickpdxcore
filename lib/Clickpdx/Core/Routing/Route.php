@@ -128,6 +128,22 @@ class Route
 		return $this->routerKey;
 	}
 
+	public function __toMenuStorageItem()
+	{
+		return array($this->routerKey => array(
+			'title' => $this->title,
+			'access' => $this->access,
+			'access arguments' => $this->accessArguments,
+			'page callback' => $this->routeCallback,
+			/*'files' => array(
+				'includes/PdfController.php'
+			),
+			'routeClass' => 'PdfController'
+			*/
+			)
+		);
+	}
+
 	public function __construct($routerKey,$currentPath=null,$menuItem=null)
 	{
 		$this->path							= $currentPath;
@@ -179,12 +195,12 @@ class Route
 		return $p;
 	}
 	
-	private function getPathArgument($index)
+	public function getPathArgument($index)
 	{
 		return $this->fetchPathArguments()[$index];
 	}
 	
-	private function getArgumentRules()
+	public function getArgumentRules()
 	{
 		return $this->routeArguments;
 	}
@@ -270,9 +286,19 @@ class Route
 		return isset($this->meta[$type])?$this->meta[$type]:'';
 	}
 	
+	public function setCallback($func)
+	{
+		$this->routeCallback = $func;
+	}
+	
 	public function hasValidCallback()
 	{
-		return function_exists($this->routeCallback)||$this->hasValidRouteClassCallback();
+		return 
+			is_callable($this->routeCallback)
+				||
+			function_exists($this->routeCallback)
+				||
+			$this->hasValidRouteClassCallback();
 	}
 	
 	private function hasValidRouteClassCallback()

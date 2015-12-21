@@ -60,17 +60,55 @@ class Application
 		$this->userId = $UserID = $user->getMemberId();
 	}
 
-	public function processRoute($route=null)
+	public function addRoutes(array $routeArgs)
+	{
+		foreach($routeArgs as $key => $router)
+		{
+//			print get_class($router);
+		//	if(get_class($router)=="Closure") print 'foo';
+			/**
+			 * Add a menu item programmatically.
+			 *
+			 * $key, $function, $args
+			 *
+			 */
+			\menu_item_add(array(
+				$key=>$router->bindTo($this->dic)));//$routeArgs);
+		}
+	}
+	/**
+	 * Process a Route
+	 *
+	 * For the purposes of this function, a "route"
+	 * is a programming *concept: here a route can
+	 * be inferred from the global $request object, a 
+	 * specific path, a given Route object a simply a callback
+	 * function.
+	 */
+	public function processRoute($routeArg=null)
 	{
 		global $path;
+		if(is_array($routeArg))
+		{
+			$foo = each($routeArg);
+			if(is_callable($foo['value']))
+			{
+				\menu_item_add($routeArg);
+				$requestedRoute = $foo['key'];
+				// return $foo['value']();
+			}
+		}
+		else if(isset($routeArg))
+		{
+			$requestedRoute = $routeArg;
+		}
 		/**
 		 * Set the path
 		 *
 		 * Establish the path based on the `q` environment variable.
 		 */
-		$route = isset($route)?$route:$_GET['q'];
-		$this->path = $path = \drupal_get_path($route,false,$form_state_path);
-
+		$requestedRoute = isset($requestedRoute)?$requestedRoute:$_GET['q'];
+		$this->path = $path = \drupal_get_path($requestedRoute,false,$form_state_path);
 
 		/**
 		 * Process the path.

@@ -36,29 +36,120 @@ class RouteProcessor
 			});
 	}
 	
-	private static function getRouteParametersRecursive(Route $route,$params=array())
+	private static function getRouteArgumentsRecursive(Route $route,$args=array())
 	{
-		if(is_array($p = $route->getParameters()))
+		$check = $args;
+		if(is_array($current = $route->getArgumentRules()))
 		{
-			$params += $p;
+			$map = function($pArg,$pKey) use(&$args,$check){
+				if(!count($check))
+				{
+					$args += array($pKey=>$pArg);
+					return;
+				}
+				
+				/**
+				 * Existing key - ignore it.
+				 * 
+				 * If the key exists, it's because the active router
+				 * has defined it with the intention of overriding it.
+				 */
+				if(!is_int($pKey)&&array_key_exists($pKey,$args))
+				{
+					return;
+				}
+				
+				/**
+				 * New key from parent (not in child)
+				 * 
+				 * These need to be prepended in the order they were defined.
+				 * Base (parent) routes are *always prepended unless
+				 * they were overridden.
+				 */
+				else if(!is_int($pKey))
+				{
+					$args = array($pKey=>$pArg) + $args;
+				}
+				
+				/**
+				 * Numeric key
+				 *
+				 * Since numeric keys can't be overridden,
+				 * we must prepend that argument here
+				 */
+				else
+				{
+					array_unshift($args,$pArg);
+				}
+			};
+		
+			/**
+			 * Prioritize arguments germain to the active route
+			 *
+			 * Given this hierarchy:
+			 *
+			 * parent/sub/child
+			 * 	sub/child
+			 * 		child (this route)
+			 *
+			 * The operation below keeps the arguments
+			 * for the active router; arguments
+			 * for parent routes with the same keys are considered as having
+			 * been overriden by the child routes.
+			 * Other keys not present from the child routes are
+			 * simply appended to the argument list.
+			 *
+			 * It turns out that += replaces
+			 * existing keys in the left operand positionally
+			 * so an existing key in a child argument-array 
+			 * will effectively maintain its positionality within 
+			 * the array.  This has the effect of giving
+			 * child argument-arrays priority in determining the "order"
+			 * that arguments are passed to callbacks, which is important to
+			 * easily determining this order from examining the menu router item.
+			 * 
+			 */
+			$prepared = !count($check)?$current:array_reverse($current);
+			array_walk($prepared,$map);
 		}
+
 		$parentKey = getNextMenuItemParentKey($route->getPath());
 		$nextRouter = getMenuRouterItem($parentKey);
 		if(!$nextRouter)
 		{
-			return $params;
+			return $args;
 		}
-		return self::getRouteParametersRecursive($nextRouter,$params);
+		return self::getRouteArgumentsRecursive($nextRouter,$args);
 	}
-	
-	private static function processRouteParameters(Route $route)
+		
+	public static function processRouteArguments(Route $route)
 	{
-		$params = self::getRouteParametersRecursive($route);
-		$helpers = array();
-		array_walk($params,function($func,$key) use(&$helpers){
-			$helpers[$key] = $func();
-			});
-		return $helpers;
+		$pathArgs = Route::getPathArguments($route->getPath());
+		
+		$rules = self::getRouteArgumentsRecursive($route);
+
+		$p = array();
+		foreach($rules as $key => $rule)
+		{
+			if(is_int($key)&&is_int($rule))
+			{
+				$p[] = $route->getPathArgument($rule);
+				continue;
+			}
+			if(is_callable($rule))
+			{
+				$p[] = $rule();
+				continue;
+			}
+			if(is_callable($key))
+			{
+				$rule=is_array($rule)?$rule:array($rule);
+				$p[] = call_user_func_array($key,$rule);
+				continue;
+			}
+			else $p[] = $rule;
+		}
+		return $p;
 	}
 	
 	public static function getOutputHandler(Route $route)
@@ -84,20 +175,16 @@ class RouteProcessor
 		clickpdx_set_http_status("Internal Server Error",500);
 	}
 	
-	private static function doRoute($routeInstance,$callback,$routeArguments,$params)
+	private static function doRoute($routeInstance,$callback,$argsProcessed)
 	{
 		return call_user_func_array(
 			array($routeInstance,$callback),
-			array_merge(
-				array_reverse($params),
-				$routeArguments
-			)
+			$argsProcessed
 		);
 	}
 		 
 	public static function processOutputHandler($route,$vars)
 	{	
-		// print $route;exit;
 		/**
 		 * Invoke the callback.
 		 *
@@ -105,7 +192,6 @@ class RouteProcessor
 		 * the specified arguments. If there are errors,
 		 * capture those into $out and print them on the page.
 		 */
-		 // print entity_toString(RouteProcessor::processRouteParameters($route));exit;
 		try
 		{
 			$out = '';
@@ -130,23 +216,17 @@ class RouteProcessor
 					$controller = new $class();	
 					$controller->setContainer(self::getDIC());
 					$callback = $route->getRouteCallback();
-					$routeArguments = $route->processRouteArguments();
-					$params = RouteProcessor::processRouteParameters($route);
-					$out = RouteProcessor::doRoute($controller,$callback,$routeArguments,$params);
+					$argsProcessed = RouteProcessor::processRouteArguments($route);
+					$out = RouteProcessor::doRoute($controller,$callback,$argsProcessed);
 				}
 			} 
 			else
 			{
-				$params = RouteProcessor::processRouteParameters($route);
-				// print $route;
-				// print \entity_toString($params);
-				
+				$argsProcessed = RouteProcessor::processRouteArguments($route);
+				// print entity_toString($argsProcessed);exit;
 				$out	=	call_user_func_array(
 					$route->getRouteCallback(),
-					array_merge(
-						array_reverse($params),
-						$route->processRouteArguments()
-					)
+					$argsProcessed
 				);
 			}
 		}

@@ -4,6 +4,8 @@
  * list some default menu router items
  *
  */
+use Clickpdx\Core\Routing\Route;
+ 
 define('MENU_ITEM_NORMAL',0x001);
 define('MENU_ITEM_ROUTER',0x002);
 define('MENU_GRANT_ACCESS',true);
@@ -18,7 +20,7 @@ use Clickpdx\Core\Routing\RouteProcessor;
 function drupal_get_menu_items()
 {
 	global $menu_items;
-	$menu_items = array();
+	if(!isset($menu_items)) $menu_items = array();
 	
 	// Mimic enabled Drupal modules
 	// instead store them statically in an array
@@ -44,6 +46,17 @@ function drupal_get_menu_items()
 	return $menu_items;
 }
 
+
+function menu_item_add($menuArgs)
+{
+	global $menu_items;
+	if(!isset($menu_items)) $menu_items = array();
+	$item = each($menuArgs);
+	$route = new Route($item['key']);
+	$route->setCallback($item['value']);
+	// print entity_toString($menuArgs);exit;
+	$menu_items = array_merge($menu_items,$route->__toMenuStorageItem());
+}
 
 
 /**
