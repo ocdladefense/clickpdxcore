@@ -1,5 +1,5 @@
 <?php
-
+use Doctrine\Common\ClassLoader;
 namespace Clickpdx\Core\DependencyInjection;
 
 class DependencyInjectionContainer
@@ -12,7 +12,7 @@ class DependencyInjectionContainer
 	 * Pass parameters or other settings to this DIC.
 	 * These are typically settings unique to this particular installation.
 	 */
-	protected $parameters = array();
+	protected static $parameters = array();
 	
 	/**
 	 * var shared, static
@@ -26,7 +26,7 @@ class DependencyInjectionContainer
 	
 	public function __construct(array $parameters = array())
 	{
-		$this->parameters = $parameters;
+		self::$parameters = $parameters;
 	}
 	
 	/**
@@ -45,7 +45,6 @@ class DependencyInjectionContainer
 	
 	/**
 	 *
-
 	function user_load($uid=null)
 	{
 		global $sess;
@@ -62,7 +61,49 @@ class DependencyInjectionContainer
     \Clickpdx\Core\User\User::setSessionHandler($this->getSessionHandler());
 		return self::$shared['userHandler'] = new \Clickpdx\Core\User\User();
 	}
+
+	/** 
+	 * Theme Engine
+	 *
+	 * The loader has to be accessed regularly to alter
+	 * how template files are loaded.
+	 */
+	public function getThemeEngine()
+	{
+    if (isset(self::$shared['themeEngine']))
+    {
+      return self::$shared['themeEngine'];
+    }
+		return self::$shared['themeEngine'] = new \Clickpdx\Core\Theme\TwigThemeEngine($this->getRenderEngine());
+	}	
 	
+
+	
+	/** 
+	 * Theme layer.
+	 *
+	 * Initialize a theme helper using Twig.  Twig will parse all of our templates.
+	 */
+	// Twig_Autoloader::register();
+	public function getRenderEngine()
+	{
+		global $twig;
+    if (isset(self::$shared['renderEngine']))
+    {
+      return self::$shared['renderEngine'];
+    }
+		return self::$shared['renderEngine'] = $twig = new \Twig_Environment();
+	}
+	
+	
+	public function getOutputRenderer()
+	{
+    if (isset(self::$shared['outputRender']))
+    {
+      return self::$shared['outputRender'];
+    }
+		return self::$shared['renderEngine'] = new \Clickpdx\Core\Output\HtmlHtml($this->getThemeEngine());
+	}
 	
 	public function getMailTransportSettings() {}
 	

@@ -1,11 +1,9 @@
 <?php
-
-use Doctrine\Common\ClassLoader;
-
 /**
- * Core includes.
+ * Core includes
  * 
- * Core includes are required before any additional processing of the router can be done.
+ * Core includes are required before any additional 
+ * processing of the router can be done.
  */
 require_once DRUPAL_ROOT .'/core/includes/autoload.inc';
 require_once DRUPAL_ROOT .'/core/autoload.php';
@@ -39,22 +37,6 @@ require(DRUPAL_ROOT.'/vendor/clickpdx/ocdla/database/DBQuery.php');
  * Load the appropriate settings file for this request.
  */
 require(getSettingsFile());
-
-
-/** 
- * Theme layer.
- *
- * Initialize a theme helper using Twig.  Twig will parse all of our templates.
- */
-// Twig_Autoloader::register();
-$loader = new Twig_Loader_Filesystem(DRUPAL_ROOT .'/'.path_to_theme() .'/templates');
-$twig = new Twig_Environment($loader, array(
-	'cache' => DRUPAL_ROOT .'/sites/default/files/cache',
-	'debug' => TWIG_DEBUG,
-));
-
-// Set to the user defined error handler
-// $old_error_handler = set_error_handler("myErrorHandler", E_WARNING | E_USER_WARNING);
 
 
 // Perform a database connection

@@ -162,6 +162,7 @@ class Route
 										'keywords' => $menuItem['meta_description'],
 										'description' => $menuItem['meta_keywords']
 										);
+		$this->theme 						= isset($menuItem['#theme'])?$menuItem['#theme']:$menuItem['theme'];
 	}
 	
 	private function parseOutputHandler($arg1=null,$arg2=null)
@@ -303,9 +304,9 @@ class Route
 	
 	private function hasValidRouteClassCallback()
 	{
-		return class_exists($this->getRouteClass());
-		return class_exists($this->getControllerClass())&&
-			method_exists($this->getControllerClass(),$this->getRouteCallback());
+		// return class_exists($this->getRouteClass());
+		return class_exists($this->getRouteClass())&&
+			method_exists($this->getRouteClass(),$this->getRouteCallback());
 	}
 	
 	public function getRouteCallback()

@@ -7,6 +7,8 @@ class RouteProcessor
 {
 	const DEFAULT_OUTPUT_HANDLER = 'html';
 	
+	private static $container;
+	
 	public static function loadIncludeFiles(Route $route)
 	{
 		$includes = $route->getIncludes();
@@ -121,6 +123,8 @@ class RouteProcessor
 		}
 		return self::getRouteArgumentsRecursive($nextRouter,$args);
 	}
+	
+	
 		
 	public static function processRouteArguments(Route $route)
 	{
@@ -183,6 +187,11 @@ class RouteProcessor
 		);
 	}
 		 
+	private static function getThemeEngine()
+	{
+		return self::$container->getThemeEngine();
+	} 
+		 
 	public static function processOutputHandler($route,$vars)
 	{	
 		/**
@@ -195,6 +204,7 @@ class RouteProcessor
 		try
 		{
 			$out = '';
+			self::getThemeEngine()->addTemplatePath(\path_to_theme($route->getTheme()).'/templates');
 			
 			
 			if(class_exists($class=$route->getRouteClass()))
@@ -207,14 +217,14 @@ class RouteProcessor
 				 */
 				if(self::isRenderable($class))
 				{
-					$classOut = new $class($route->getRouteArguments());
-					$classOut->setContainer(self::getDIC());
+					$classOut = new $class(RouteProcessor::processRouteArguments($route));
+					$classOut->setRenderer(self::getRenderer());
 					$out = $classOut->render();
 				}
 				else
 				{
 					$controller = new $class();	
-					$controller->setContainer(self::getDIC());
+					$controller->setContainer(self::$container);
 					$callback = $route->getRouteCallback();
 					$argsProcessed = RouteProcessor::processRouteArguments($route);
 					$out = RouteProcessor::doRoute($controller,$callback,$argsProcessed);
@@ -223,7 +233,6 @@ class RouteProcessor
 			else
 			{
 				$argsProcessed = RouteProcessor::processRouteArguments($route);
-				// print entity_toString($argsProcessed);exit;
 				$out	=	call_user_func_array(
 					$route->getRouteCallback(),
 					$argsProcessed
@@ -293,8 +302,7 @@ class RouteProcessor
 						}
 					}
 					\drupal_output_handler($route->getOutputHandler());
-					// render the $regions, $menus, $header and $footer
-					\drupal_render_page($vars);
+					self::renderPage($vars);
 				}
 				else
 				{
@@ -303,15 +311,103 @@ class RouteProcessor
 				break;
 		}
 	}
-
-	private static function getDIC()
+	
+	public static function getRenderer()
 	{
-		return new \Clickpdx\Core\DependencyInjection\DependencyInjectionContainer();
+		return self::$renderer;
+	}
+	
+	public static function renderPage(&$vars)
+	{
+		$oRenderer = self::$container->getOutputRenderer();
+		return $oRenderer->render($vars);
 	}
 
 	private static function isRenderable($class)
 	{
-		//print entity_toString(class_implements($class));exit;
 		return in_array('Clickpdx\Core\Output\Renderable',class_implements($class));
+	}
+	
+	public static function setContainer($container)
+	{
+		self::$container = $container;
+	}
+	
+	public static function clickpdx_process_router($path)
+	{
+		global $statuses;
+		$vars = array();
+	
+		/**
+		 * Path
+		 *
+		 * We process the path that has been requested from the routing system.
+		 * Attempt to match the requested path against the available routers.
+		 */
+		if ($path == '' || $path == '/' || $path == 'home')
+		{
+			$route = \clickpdx_get_homepage_router();
+		}
+		else
+		{
+			$menu_items = \drupal_get_menu_items();	
+			$route = \clickpdx_get_router($path);
+		}
+
+
+		/**
+		 * Load include files.
+		 *
+		 * We load the include files first.
+		 * They may contain the callback functions 
+		 * or access functions.
+		 */
+		self::loadIncludeFilesRecursive($route);
+
+		/**
+		 * Access Denied
+		 *
+		 * If the user doesn't have access
+		 * then we bail out and return a 403.
+		 */
+		if(!\evaluateMenuAccess($route,$path))
+		{
+			\clickpdx_access_denied();
+		}
+
+		/**
+		 * Page not found
+		 *
+		 * If there is no valid callback for the requested route
+		 * then we bail out and return a 404.
+		 */
+		if(!$route->hasValidCallback())
+		{
+			\drupal_page_not_found();
+			throw new \Exception('No Page Callback given for this menu item.');
+		}
+	
+
+		/**
+		 * Okay, everything checks out,
+		 * the user has access and we've established there is a valid callback.
+		 */
+		$vars = array(
+			'statuses' 					=> $statuses,
+			'title'							=> $route->getTitle(),
+			'theme'							=> self::getThemeName($route),
+			'site_name'					=> \system_get_setting('site_name'),
+			'meta_keywords' 		=> $route->getMeta('keywords'),
+			'meta_description' 	=> $route->getMeta('description')
+		);
+	
+		self::processOutputHandler($route,$vars);
+	}
+	
+	public static function getThemeName($route)
+	{
+		return empty($route->getTheme())?
+			self::getThemeEngine()->getDefaultThemeName():
+				$route->getTheme();
 	}
 }

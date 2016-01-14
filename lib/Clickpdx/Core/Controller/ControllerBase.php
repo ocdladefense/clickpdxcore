@@ -51,6 +51,11 @@ class ControllerBase
 		return $this->user;
 	}
 	
+	protected function addTemplateLocation($templatePath)
+	{
+		$this->container->getThemeEngine()->addTemplatePath($templatePath);
+	}
+	
 	protected function mail($recipients,$subject,$message)
 	{
 		$mailer = $this->container->getMailer();
@@ -70,7 +75,7 @@ class ControllerBase
 
 	protected function render($templateName,$vars)
 	{
-		return $this->themeEngine->render($templateName,$vars);
+		return $this->container->getThemeEngine()->theme($templateName,$vars);
 	}
 	
 	protected function redirect($url)

@@ -7,6 +7,8 @@ define('DRUPAL_HTML_PAGE','html');
 $js_string = array();
 
 
+
+
 function clickpdx_get_css()
 {		
 	global $css;
@@ -130,6 +132,8 @@ function base_path() {
 }
 
 
+
+
 function clickpdx_get_path( $type = 'theme' )
 {
 	global $base_path;
@@ -194,9 +198,10 @@ function drupal_get_files_dir()
 function drupal_output_handler($type = 'xhtml')
 {	
 	$headers = array('cachecontrol','contenttype');
-	foreach( drupal_get_headers( $headers, $type ) AS $header ) {
+	foreach( drupal_get_headers( $headers, $type ) as $header )
+	{
 		header( $header );
-	};
+	}
 }
 
 

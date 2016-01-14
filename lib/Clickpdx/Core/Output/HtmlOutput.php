@@ -3,23 +3,21 @@ namespace Clickpdx\Core\Output;
 
 class HtmlOutput implements Renderable
 {
-	private $renderer;
-	
-	private $container;
+	protected $renderer;
 	
 	public function setRenderer($renderer)
 	{
-		$this->renderer($renderer);
+		$this->renderer = $renderer;
+	}
+	
+	public function __construct($renderer=null)
+	{
+		$this->renderer = $renderer;
 	}
 	
 	protected function getRenderEngine()
 	{
-		return $this->container->getRenderer();
-	}
-	
-	public function setContainer($container)
-	{
-		$this->container = $container;
+		return $this->renderer;
 	}
 	
 	private function formatDummyLink($title,$url)
@@ -51,7 +49,7 @@ class HtmlOutput implements Renderable
 		return implode("\n",$map);
 	}
 	
-	public function render()
+	public function render($vars)
 	{
 		return $this->renderer->render($items);
 	}

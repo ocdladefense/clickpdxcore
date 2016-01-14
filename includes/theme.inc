@@ -87,9 +87,19 @@ function theme_get_active_theme_info()
 	return $active_theme;
 }
 
-function path_to_theme()
+function path_to_theme($theme=null)
 {
-	return theme_get_active_theme_info()['theme_path'];
+	
+	return $theme==='default'?"themes/default":(isset($theme)?"sites/all/themes/{$theme}":theme_get_active_theme_info()['theme_path']);
+}
+
+function theme_locate($theme)
+{
+	// Search default themes
+	
+	// Search all themes
+	
+	// Search themes for this site (sites/default, sites/ocdla, etc)
 }
 
 

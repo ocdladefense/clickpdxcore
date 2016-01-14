@@ -60,6 +60,7 @@ class Application
 		$this->userId = $UserID = $user->getMemberId();
 	}
 
+
 	public function addRoutes(array $routeArgs)
 	{
 		foreach($routeArgs as $key => $router)
@@ -116,7 +117,9 @@ class Application
 		 * Process the given path again the available menu items.
 		 * Returning the appropriate page not found or access denied errors.
 		 */
-		return $this->output = \clickpdx_process_router($path);
+		// $this->routingService = new \Clickpdx\Routing\RouteProcessor($this->container->getOutputRenderer());
+		Routing\RouteProcessor::setContainer($this->dic);
+		return $this->output = Routing\RouteProcessor::clickpdx_process_router($path);
 	}
 	
 	public function writeOutput($stdOut=true)
