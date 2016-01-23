@@ -33,7 +33,7 @@ function _errorHandler($code, $message, $errFile, $errLine)
 	Its subject line will have the date and time it occurred while 
 	the body will contain the state of all of the global variables.
 	*/
-	log_error($message);
+	log_error($message . " in " . $errFile . " (Line $errLine)");
 	
 	if(EMAIL_ERRORS) email_error($subject,$body);
 

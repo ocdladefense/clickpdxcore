@@ -190,6 +190,13 @@ class RouteProcessor
 	private static function getThemeEngine()
 	{
 		return self::$container->getThemeEngine();
+	}
+	
+	public static function getThemeName($route)
+	{
+		return empty($route->getTheme())?
+			self::getThemeEngine()->getDefaultThemeName():
+				$route->getTheme();
 	} 
 		 
 	public static function processOutputHandler($route,$vars)
@@ -203,7 +210,7 @@ class RouteProcessor
 		 */
 		try
 		{
-			$out = '';
+			$renderArray = '';
 			self::getThemeEngine()->addTemplatePath(\path_to_theme($route->getTheme()).'/templates');
 			
 			
@@ -219,7 +226,7 @@ class RouteProcessor
 				{
 					$classOut = new $class(RouteProcessor::processRouteArguments($route));
 					$classOut->setRenderer(self::getRenderer());
-					$out = $classOut->render();
+					$renderArray = $classOut->render();
 				}
 				else
 				{
@@ -227,13 +234,13 @@ class RouteProcessor
 					$controller->setContainer(self::$container);
 					$callback = $route->getRouteCallback();
 					$argsProcessed = RouteProcessor::processRouteArguments($route);
-					$out = RouteProcessor::doRoute($controller,$callback,$argsProcessed);
+					$renderArray = RouteProcessor::doRoute($controller,$callback,$argsProcessed);
 				}
 			} 
 			else
 			{
 				$argsProcessed = RouteProcessor::processRouteArguments($route);
-				$out	=	call_user_func_array(
+				$renderArray	=	call_user_func_array(
 					$route->getRouteCallback(),
 					$argsProcessed
 				);
@@ -271,38 +278,27 @@ class RouteProcessor
 		switch($route->getOutputHandler())
 		{
 			case 'html-file':
-				html_deliver($out);
+				html_deliver($renderArray);
 				break;
 			case 'file':
-				file_deliver($out);
+				file_deliver($renderArray);
 				break;
 			case 'ajax':
-				ajax_deliver($out);
+				ajax_deliver($renderArray);
 				break;
 			case 'json':
-				json_deliver($out);
+				json_deliver($renderArray);
 				break;
 			case 'xml':
-				xml_deliver($out);
+				xml_deliver($renderArray);
 				break;
 			default:
 				if(in_array($route->getOutputHandler(), array('html','xhtml','html5')))
 				{
-					try
-					{
-						$vars['page']['content']		= $out;
-						$vars['page']['errors'] 		= $errors;
-						$vars['route_arguments'] 		= $route->processRouteArguments();
-					}
-					catch(Exception $e)
-					{
-						if(MESSAGES_DISPLAY_ERRORS)
-						{
-							$vars['page']['content'] = "<div class='error'><h3>There was an error processing your request.</h3><span class='message'>".$e->getMessage()."</span></div>";
-						}
-					}
-					\drupal_output_handler($route->getOutputHandler());
-					self::renderPage($vars);
+					// Here is a reference to the renderer
+					// Pass the $renderArray to a class
+					// that implements Renderable
+					self::$container->getOutputRenderer()->render($renderArray,$route);
 				}
 				else
 				{
@@ -315,12 +311,6 @@ class RouteProcessor
 	public static function getRenderer()
 	{
 		return self::$renderer;
-	}
-	
-	public static function renderPage(&$vars)
-	{
-		$oRenderer = self::$container->getOutputRenderer();
-		return $oRenderer->render($vars);
 	}
 
 	private static function isRenderable($class)
@@ -387,27 +377,11 @@ class RouteProcessor
 			throw new \Exception('No Page Callback given for this menu item.');
 		}
 	
-
 		/**
 		 * Okay, everything checks out,
 		 * the user has access and we've established there is a valid callback.
 		 */
-		$vars = array(
-			'statuses' 					=> $statuses,
-			'title'							=> $route->getTitle(),
-			'theme'							=> self::getThemeName($route),
-			'site_name'					=> \system_get_setting('site_name'),
-			'meta_keywords' 		=> $route->getMeta('keywords'),
-			'meta_description' 	=> $route->getMeta('description')
-		);
-	
-		self::processOutputHandler($route,$vars);
+		self::processOutputHandler($route);
 	}
-	
-	public static function getThemeName($route)
-	{
-		return empty($route->getTheme())?
-			self::getThemeEngine()->getDefaultThemeName():
-				$route->getTheme();
-	}
+
 }

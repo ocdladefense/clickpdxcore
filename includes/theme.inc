@@ -8,6 +8,8 @@ $scripts[THEME_SCRIPT_REGION_FOOTER] = array();
 $css = array();
 $templates = array();
 
+use Clickpdx\Core\Asset\Css;
+use Clickpdx\Core\Asset\Script;
 
 function add_html_comment($comment,$args=array())
 {
@@ -15,7 +17,8 @@ function add_html_comment($comment,$args=array())
 }
 
 
-function drupal_get_headers( $list = array('contenttype'), $type = NULL) {
+function drupal_get_headers($list = array('contenttype'), $type = null)
+{
 	global $xml;
 	$headers = array();
 	$mime_types = array(
@@ -89,62 +92,140 @@ function theme_get_active_theme_info()
 
 function path_to_theme($theme=null)
 {
-	
 	return $theme==='default'?"themes/default":(isset($theme)?"sites/all/themes/{$theme}":theme_get_active_theme_info()['theme_path']);
 }
 
-function theme_locate($theme)
+
+function clickpdx_add_js($jsData)
 {
-	// Search default themes
+	// print gettype($jsData);exit;
+	global $scripts;	
+
+	// determine what kind of parameter the last one is
+	$args 			= func_get_args();
+	$lastArg 		= $args[count($args)-1];
+	$firstArg		= $args[0];
 	
-	// Search all themes
+	/**
+	 * Create a default set of options that will be passed
+	 * for this set of scripts.
+	 */
+	$options 		= is_array($lastArg) ?
+		array_pop($args) :
+			array();
 	
-	// Search themes for this site (sites/default, sites/ocdla, etc)
+	/**
+	 * Set the region this script will be rendered in.
+	 */
+	$region = Script::isRegion($lastArg) ?
+		array_pop($args) :
+			THEME_SCRIPT_REGION_HEADER;
+	!isset($options['region']) ?
+		$options['region'] = $region :
+			null;
+
+
+
+	$jsData = count($args)>1 ?
+		$args :
+			$jsData;
+
+	// print "Region is: ".$region.'<br />';	
+	// print "Passed data is: ".entity_toString($jsData).'<br />';	
+
+	// Determine if the css data is a list of css file paths.
+	/*
+	 * For backwards compatibility where Script might be passed directly.
+	 */
+	if(Script::isScriptObject($firstArg))
+	{
+		$assets = array($firstArg);
+	}
+	else
+	{
+		// print "Passed data is: ".entity_toString($jsData).'<br />';
+		$assets = Script::isFileList($jsData) ?
+			Script::parseFileList($jsData) :
+				array(new Script($jsData));
+	}
+	
+	foreach($assets as $jsAsset)
+	{
+		array_unshift($scripts[$region], $jsAsset);
+	}
+	
+	return $scripts;
 }
 
 
-		
-function drupal_add_js( Clickpdx\Core\Script $script, $region = SCRIPT_REGION_HEADER )
+function clickpdx_add_css($cssData)
 {
-	// add on to the global $scripts array
-	global $scripts;	
-	array_unshift( $scripts[$region], $script );
+	global $css;
+
+	$cssData = count(func_get_args())>1 ?
+		func_get_args() :
+			$cssData;
+			
+	// Determine if the css data is a list of css file paths.
+	$assets = Css::isFileList($cssData) ?
+		Css::parseFileList($cssData) :
+		array(new Css($cssData));
+	
+	foreach($assets as $cssAsset)
+	{
+		// print $cssAsset;
+		array_push($css,$cssAsset);
+		// print "css array has length of ".count($css);
+	}
 }
 
 
 function theme_javascripts(/*Script array*/ $scripts)
 {
-	$out = array();
-	foreach( $scripts AS $Script ) {
-		$out[] = $Script->is_inline() ? theme_javascript_inline( $Script ) : theme_javascript_file( $Script );
-	}
-	$html = "\n\n" . implode( "\n", $out ) . "\n\n";
-	return $html;
+	$js = array_map(function($script){
+	return $script->is_inline() ? theme_javascript_inline($script) : theme_javascript_file($script);
+	},$scripts);
+	return "\n\n" . implode( "\n", $js ) . "\n\n";
 }
 
 
-function theme_javascript_file(Clickpdx\Core\Script  $Script)
+function theme_stylesheets($stylesheets)
 {
-	$attributes = $Script->getAttributes();
-	$html = "<script src='{$Script->getSrcAttribute()}' type='{$Script->getTypeAttribute()}'></script>";
-	return $html;
+	$styles = array_map(function($style){
+		return $style->isInline() ?
+			$style->getData() :
+				theme_stylesheet_file($style);
+	},$stylesheets);
+	return implode("\n",$styles);
 }
 
 
-function theme_javascript_inline( Clickpdx\Core\Script  $Script )
+function theme_stylesheet_file(Clickpdx\Core\Asset\Css $css)
+{
+	return "<link rel='stylesheet' href='{$css->getAttribute('href')}' media='{$css->getAttribute('media')}' type='{$css->getAttribute('type')}' />";
+}
+
+
+function theme_javascript_file(Clickpdx\Core\Asset\Script $Script)
+{
+	return "<script src='{$Script->getSrcAttribute()}' type='{$Script->getTypeAttribute()}'></script>";
+}
+
+
+function theme_javascript_inline(Clickpdx\Core\Asset\Script $Script)
 {
 	if( $Script->getType() !== SCRIPT_INLINE ) throw new Exception( 'Cannot theme a script for inline if it isn\'t inline.' );
 	$inline = array();
 	$inline['prefix'] = "<script type='{$Script->getTypeAttribute()}'>\n";
 	$inline['prefix'] .= '<!--//--><![CDATA[//><!--'."\n";
-	//$inline['data'] = 'jQuery.extend(Drupal.settings, { "basePath": "/", "colorbox": { "transition": "elastic", "speed": 350, "opacity": "0.85", "slideshow": false, "slideshowAuto": false, "slideshowSpeed": 2500, "slideshowStart": "", "slideshowStop": "", "current": "{current} of {total}", "previous": "« Prev", "next": "Next »", "close": "Close", "overlayClose": true, "maxWidth": "100%", "maxHeight": "100%" }, "nice_menus_options": { "delay": "800", "speed": "slow" }, "shadowbox": { "animate": 1, "animateFade": 1, "animSequence": "wh", "auto_enable_all_images": 0, "auto_gallery": 0, "autoplayMovies": true, "continuous": 0, "counterLimit": "10", "counterType": "default", "displayCounter": 1, "displayNav": 1, "enableKeys": 1, "fadeDuration": "0.35", "handleOversize": "resize", "handleUnsupported": "link", "initialHeight": 160, "initialWidth": 320, "language": "en", "modal": false, "overlayColor": "#333", "overlayOpacity": "0.6", "players": null, "resizeDuration": "0.35", "showMovieControls": 1, "slideshowDelay": "0", "troubleElements": [ "select", "embed", "canvas" ], "viewportPadding": 20, "useSizzle": 0 } });'."\n";
 	$inline['suffix'] = "\n".'//--><!]]>'."\n";
 	$inline['suffix'] .= '</script>';
 	return $inline['prefix'] . $Script->getData() . $inline['suffix'];
 }
 
 
-function page_download() {
+function page_download()
+{
 	//$filename = substr($catalog["DownloadLocation"],strrpos($catalog["DownloadLocation"],'\\')+1);
 	$filename = 'DUIITrialNotebook_2008.pdf';
 	$drive = 'F';
@@ -179,10 +260,7 @@ function page_download() {
 }
 
 
-
-
-
-function theme_footer_info( $info = NULL )
+function theme_footer_info($info = NULL)
 {
 	$prefix = '<ul id="site-info"><li>';
 	$suffix = '</li></ul>';
@@ -191,16 +269,7 @@ function theme_footer_info( $info = NULL )
 }
 
 
-
-
-function drupal_add_css($css_array)
-{
-	global $css;
-	array_push($css, $css_array);
-}
-
-
-function theme_render_template( $template, &$vars )
+function theme_render_template($template, &$vars)
 {
 	$file = DRUPAL_ROOT . '/' . $template;
 	extract($vars, EXTR_SKIP); // Extract the variables to a local namespace
@@ -220,16 +289,25 @@ function phptemplate_preprocess_html(&$vars)
 	$vars['head_title'] = SITE_NAME . ' - ' . $vars['title'];
  
 	$vars['styles'] = "";
-	$css_files = array_reverse($css);
-	foreach( $css_files AS $style ) {
-		$path = strpos($style['path'],'http')!==FALSE ? $style['path'] : '/' . $style['path'];
-		if( $style['type']=='inline' ) { $vars['styles'] .= $style['data']; continue; }
-		$vars['styles'] .= "\n<link rel=\"stylesheet\" href=\"{$path}\" media=\"{$style['media']}\" type=\"text/css\" />";
+	
+	foreach (array_reverse($css) as $style)
+	{
+		$path = (strpos($style->getAttribute('href'),'http')!==false) ? 
+			$style->getAttribute('href') :
+				'/' . $style->getAttribute('href');
+		
+		if ($style->isInline()=='inline')
+		{
+			$vars['styles'] .= $style['data'];
+			continue;
+		}
+		$vars['styles'] .= "\n<link rel='stylesheet' href='{$style->getAttribute('href')}' media='{$style->getAttribute('media')}' type='{$style->getAttribute('type')}' />";
 	}
 }
 
 
-function phptemplate_preprocess_page( &$vars ) {
+function phptemplate_preprocess_page(&$vars)
+{
 	global $templates;
 
 	 //some other stuff
@@ -258,7 +336,8 @@ function phptemplate_preprocess_page( &$vars ) {
 }
 
 
-function theme($hook, $variables = array()) {
+function theme($hook, $variables = array())
+{
 	// define paths for themes registered for specific domains
 	// normally this would be done through separate databases
 	// but instead we need to load this data through .info files
@@ -378,7 +457,8 @@ function theme($hook, $variables = array()) {
 }
 
 
-function theme_primary_links( &$vars ) {
+function theme_primary_links(&$vars)
+{
 	 $output = "<div id='primary_links'>".implode('',$menu)."</div>";
 	 return $output;
 }

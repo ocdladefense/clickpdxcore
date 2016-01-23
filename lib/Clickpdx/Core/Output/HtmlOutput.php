@@ -49,8 +49,49 @@ class HtmlOutput implements Renderable
 		return implode("\n",$map);
 	}
 	
-	public function render($vars)
+	public function render($renderArray)
 	{
-		return $this->renderer->render($items);
+		if(!is_array($renderArray)) return $renderArray;
+		
+		$type = $renderArray['#type'] = 'markup';
+		
+		$this->renderArray = $renderArray;
+		
+		// We process the render array in a manner
+		// consistent with the Renderable interface.
+		// ...
+		$this->processAttached();
+		return $renderArray['#markup'];
 	}
+	
+	public function processContent() {}
+	
+	public function processPage() {}
+	
+	public function processBlocks() {}
+	
+	public function processHtml() {}
+	
+	public function processNode() {}
+	
+	public function processAttachedJs($jsArray)
+	{
+		array_walk($jsArray,function($item){
+			\clickpdx_add_js($item);
+		});
+	}
+	
+	public function processAttachedCss($cssArray)
+	{
+		array_walk($cssArray,function($item){
+			!is_array($item)?\clickpdx_add_css(array(
+				'path' => $item)):\clickpdx_add_css($item);
+		});
+	}
+	
+	 public function processAttached()
+	 {
+			$this->processAttachedJs($this->renderArray['#attached']['js']);
+			$this->processAttachedCss($this->renderArray['#attached']['css']);
+	 }
 }
