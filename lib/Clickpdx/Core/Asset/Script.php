@@ -24,7 +24,6 @@ class Script
 	
 	public static function isScriptObject($arg)
 	{
-		// print "Type is: ".get_class($arg) .'<br />';
 		return is_object($arg)&&get_class($arg)==='Clickpdx\Core\Asset\Script';
 	}
 	

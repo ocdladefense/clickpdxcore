@@ -36,6 +36,7 @@ require(DRUPAL_ROOT.'/vendor/clickpdx/ocdla/database/DBQuery.php');
  *
  * Load the appropriate settings file for this request.
  */
+processSettings();
 require(getSettingsFile());
 
 

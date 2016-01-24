@@ -3,10 +3,19 @@ define('DRUPAL_XHTML_PAGE','xhtml');
 define('DRUPAL_HTML5_PAGE','html5');
 define('DRUPAL_HTML_PAGE','html');
 
+use Clickpdx\Core\System\Settings;
 
 $js_string = array();
 
+function processSettings()
+{	
+	Settings::loadDefaults();
+}	
 
+function setting($name)
+{
+	return Settings::get($name);
+}
 
 
 function clickpdx_get_css()
