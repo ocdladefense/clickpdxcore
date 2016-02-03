@@ -315,6 +315,20 @@ function json_deliver($page_callback_result, $type = 'json')
 	ob_end_flush();
 }
 
+function jsonp_deliver($callback_result, $type = 'json')
+{
+	// $page_callback_result needs to be a PHP array
+	$jscallback = $callback_result['callback'];
+	$json = json_encode($callback_result['json']);
+	header("Content-Type: application/json; charset=UTF-8");
+	header("Cache-Control: no-cache, must-revalidate");
+	ob_start();
+	print $jscallback ."(" . $json . ")";
+	$length = ob_get_length();
+	header('Content-Length: ' . $length);
+	ob_end_flush();
+}
+
 
 function clickpdx_goto($url,$r=301)
 {

@@ -289,6 +289,9 @@ class RouteProcessor
 			case 'json':
 				json_deliver($renderArray);
 				break;
+			case 'jsonp':
+				jsonp_deliver($renderArray);
+				break;
 			case 'xml':
 				xml_deliver($renderArray);
 				break;

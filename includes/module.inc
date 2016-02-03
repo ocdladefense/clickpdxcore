@@ -216,18 +216,17 @@ function module_invoke($module,$hook,$args=array())
 
 
 
-function module_invoke_all() {
+function module_invoke_all()
+{
 	$args = func_get_args();
 	$hook = $args[0];
 	unset($args[0]);
 	$return = array();
-	$modules = _get_modules();
 
-	if(!count($modules)) return;
-	foreach ($modules as $name => $_)
+	foreach (module_implements($hook) as $name)
 	{
-		if(!function_exists("{$name}_{$hook}")) return false;
-		$result=module_invoke($name,$hook,$args);
+		print "Executing {$name}_{$hook}...<br />";
+		$result = module_invoke($name,$hook,$args);
 		if (isset($result))
 		{
 			if (is_array($result)) $return = array_merge_recursive($return,$result);
@@ -236,4 +235,14 @@ function module_invoke_all() {
 	}
 
 	return $return;
+}
+
+
+function module_implements($hook)
+{
+	$modules = _get_modules();
+	return array_filter(array_keys($modules),
+	function($module) use($hook){
+		return function_exists("{$module}_{$hook}");
+	});
 }

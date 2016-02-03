@@ -13,6 +13,11 @@ class Settings
 		require_once DRUPAL_ROOT .'/sites/default/settings-default.php';
 		self::$settings = $settings;
 	}
+	
+	public static function loadSiteSettings($siteKey)
+	{
+	
+	}
 
 	public static function get($name)
 	{
