@@ -69,10 +69,10 @@ class MyExceptionHandler
 		switch($env)
 		{
 			case 'test':
-				return array("MyExceptionhandler","handle");
+				return array("Clickpdx\Core\Exception\MyExceptionhandler","handle");
 				break;
 			default:
-				return array("MyExceptionHandler","displayFriendly");
+				return array("Clickpdx\Core\Exception\MyExceptionHandler","displayFriendly");
 				break;
 		}
 	}

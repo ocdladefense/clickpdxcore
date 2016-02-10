@@ -178,6 +178,8 @@ class Route
 		// Okay, process the arguments
 		// $params = array_map(
 		$p = array();
+		if(!count($rules)) return array();
+		
 		foreach($rules as $key => $rule)
 		{
 			if(is_int($key)&&is_int($rule))

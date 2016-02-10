@@ -21,6 +21,30 @@ define('EMAIL_LOGGING',1);
 
 function _errorHandler($code, $message, $errFile, $errLine)
 { 
+
+	$errorCodes = array(
+	E_ERROR => 'PHP ERROR',
+
+	E_WARNING => 'PHP WARNING',
+
+	E_NOTICE => 'PHP NOTICE',
+
+	E_USER_ERROR => 'USER ERROR',
+
+	E_USER_WARNING => 'USER WARNING',
+
+	E_USER_NOTICE => 'USER NOTICE',
+
+	E_STRICT => 'PHP STRICT',
+
+	E_RECOVERABLE_ERROR => 'PHP RECOVERABLE ERROR',
+
+	E_DEPRECATED => 'PHP DEPRECATED ERROR',
+
+	E_USER_DEPRECATED => 'USER DEPRECATED WARNING',
+
+	E_ALL => 'PHP ALL');
+
   global $base_url;
   $subject = "MAJOR PROBLEM at " . $base_url . ': ' . date("F j, Y, g:i a"); 
   $body = "Error: $code\r\n"
@@ -35,7 +59,7 @@ function _errorHandler($code, $message, $errFile, $errLine)
 	*/
 	// define a format for the error message
 	log_error(sprintf(setting('error.logFormat'),
-		$code,$message,$errFile,$errLine));
+		$errorCodes[$code],$message,$errFile,$errLine));
 	
 	if(EMAIL_ERRORS) email_error($subject,$body);
 

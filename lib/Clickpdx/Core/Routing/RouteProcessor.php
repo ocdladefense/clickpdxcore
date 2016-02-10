@@ -365,6 +365,9 @@ class RouteProcessor
 		 */
 		if(!\evaluateMenuAccess($route,$path))
 		{
+			// print 'Menu access evaluated to false.';
+			// \user_is_authenticated();
+			// exit;
 			\clickpdx_access_denied();
 		}
 
