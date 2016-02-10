@@ -357,6 +357,19 @@ class RouteProcessor
 		 */
 		self::loadIncludeFilesRecursive($route);
 
+
+
+/*
+		global $sess;
+		print get_class($sess);
+		$reflect = new \Reflection("\Ocdla\Session");
+		// print $reflect->getFileName();
+		if(\user_is_authenticated())
+			print "<br />User was authenticated.";
+		else $sess->hasAuthenticatedSession();
+		exit;
+		*/
+
 		/**
 		 * Access Denied
 		 *
@@ -370,6 +383,7 @@ class RouteProcessor
 			// exit;
 			\clickpdx_access_denied();
 		}
+
 
 		/**
 		 * Page not found
