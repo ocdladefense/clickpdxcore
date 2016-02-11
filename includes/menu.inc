@@ -21,7 +21,6 @@ function drupal_get_menu_items()
 {
 	global $menu_items;
 	if(!isset($menu_items)) $menu_items = array();
-	
 	// Mimic enabled Drupal modules
 	// instead store them statically in an array
 	$groups = array(
@@ -36,6 +35,7 @@ function drupal_get_menu_items()
 			$func = $name . "_menu";
 			if(function_exists($func)) $items = $func();
 			else continue;
+			if(!count($items)) continue; // BUGFIX #2016-001: empty arrays clobber in array_merge.
 			array_walk($items,function(&$item) use($configFile,$name){
 				$item['module']=$name;
 				$item['module_path']=dirname($configFile);
@@ -111,7 +111,6 @@ function clickpdx_get_router($requestedPath)
 			break;
 		}
 	}
-	if(!$found) drupal_page_not_found();
 	$router = new Clickpdx\Core\Routing\Route(
 		$route,
 		$requestedPath,
