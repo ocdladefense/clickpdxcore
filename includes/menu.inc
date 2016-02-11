@@ -164,11 +164,6 @@ function evaluateMenuAccess($route,$path)
 	if(is_bool($route->getAccessCallback())) return $route->getAccessCallback();
 	if(function_exists($route->getAccessCallback()))
 	{ 
-		// print "Access callback is: ".$route->getAccessCallback();
-		// if($route->hasAccessArguments()) print "<br />This router item has access arguments.";
-		// else print "<br />No access arguments.<br />";
-		// exit;
-		// $sess->hasAuthenticatedSession();
 		return $route->hasAccessArguments() ?
 			call_user_func_array($route->getAccessCallback(),
 				$route->getAccessArguments()) :
