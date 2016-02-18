@@ -41,13 +41,13 @@ class ForceUser extends User
 	  $lodParams = array(
 	  	'username'			=> ucfirst($data['Ocdla_Username__c']),
 	  	'name_full' 		=> $data['FirstName'] . " " .$data['LastName'],
-	  	'email'					=> 'admin@ocdla.org'//$data['OrderApi__Work_Email__c'],
+	  	'email'					=> $data['OrderApi__Work_Email__c'],
 	  );
 	  
 	  $ocdlaEmailParams = array(
 	  	'id'						=> $data['Id'],
 	  	'type' 					=> 'email',
-	  	'email'					=> 'admin@ocdla.org',//$data['OrderApi__Work_Email__c'],
+	  	'email'					=> $data['OrderApi__Work_Email__c'],
 	  	'publish'				=> 1,
 	  );
 	  
