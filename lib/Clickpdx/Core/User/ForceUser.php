@@ -54,7 +54,7 @@ class ForceUser extends User
 		
 	  // exit;
 		// username 
-		print "Inserting new OCDLA member record with username, {$data['OrderApi__Work_Email__c']}... <br />";
+		print "Inserting new OCDLA member record with username, {$data['Ocdla_Username__c']}... <br />";
 		\db_query('INSERT INTO {members} (id, username, active, name_company, name_last, name_first, bar_number, is_member, sf_Data) VALUES (:id, :username, :active, :name_company, :name_last, :name_first, :bar_number, :is_member, :sf_Data) ON DUPLICATE KEY UPDATE username=VALUES(username), active=VALUES(active), name_company=VALUES(name_company), name_last=VALUES(name_last), name_first=VALUES(name_first), bar_number=VALUES(bar_number), sf_Data=VALUES(sf_Data)',$ocdlaParams,'pdo');
 
 		print "Inserting new OCDLA email record... <br />";
