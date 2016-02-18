@@ -78,7 +78,7 @@ class User
 		return self::loadFromUsername($username);
 	}
 	
-	private function setSomeValues()
+	protected function setSomeValues()
 	{
 		if(foobar)
 		{
@@ -133,7 +133,7 @@ class User
 		return $this->data['email'];
 	}
 	
-	private function addRole($rName)
+	protected function addRole($rName)
 	{
 		array_unshift($this->roles,$rName);
 	}
