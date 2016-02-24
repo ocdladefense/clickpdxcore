@@ -58,8 +58,8 @@ class ForceUser extends User
 		\db_query('INSERT INTO {members} (id, username, active, name_company, name_last, name_first, bar_number, is_member, sf_Data) VALUES (:id, :username, :active, :name_company, :name_last, :name_first, :bar_number, :is_member, :sf_Data) ON DUPLICATE KEY UPDATE username=VALUES(username), active=VALUES(active), name_company=VALUES(name_company), name_last=VALUES(name_last), name_first=VALUES(name_first), bar_number=VALUES(bar_number), sf_Data=VALUES(sf_Data)',$ocdlaParams,'pdo');
 
 		print "Inserting new OCDLA email record... <br />";
-		print "Testing email will be used!... <br />";
-		print "Testing email: admin@ocdla.org... <br />";
+		// print "Testing email will be used!... <br />";
+		print "Email will be: {$data['OrderApi__Work_Email__c']}... <br />";
 		\db_query('INSERT INTO {member_contact_info} (contact_id, type, value, publish) VALUES(:id,:type,:email,:publish) ON DUPLICATE KEY UPDATE `value`=VALUES(`value`),publish=VALUES(publish)',$ocdlaEmailParams,'pdo');
 		
 		print "Inserting new Library of Defense record for LOD access... <br />";
