@@ -10,8 +10,10 @@ class Settings
 	
 	public static function loadDefaults()
 	{
-		require_once DRUPAL_ROOT .'/sites/default/settings-default.php';
+		require_once DRUPAL_ROOT .'/sites/default/settings-shared.php';
 		self::$settings = $settings;
+		require_once DRUPAL_ROOT .'/sites/default/settings-default.php';
+		self::$settings = array_merge(self::$settings,$settings);
 	}
 	
 	public static function loadSiteSettings($siteKey)
