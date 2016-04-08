@@ -45,13 +45,17 @@ class MyExceptionHandler
 	
 	public static function __printMe()
 	{
-		print self::getStyles();
-		print "<h2>Woops!  That was an error.</h2>";
-		print "<p>Return to <a href='/admin'>admin</a></p>";
-		print "<h3>Error Message:</h3>";
-		print "<blockquote>".self::getMessage()."</blockquote>";
-		print "<h3>Stack Trace:</h3><p style='border:1px solid #ccc;'>".self::getActiveFrameInfo()."</p>";
-		print self::__toString();
+		$out = array(
+			self::getStyles(),
+			"<h2>Woops!  That was an error.</h2>",
+			"<p>Return to <a href='/admin'>admin</a></p>",
+			"<h3>Error Type: ".get_class(self::$e)."</h3>",
+			"<h3>Error Message:</h3>",
+			"<blockquote>".self::getMessage()."</blockquote>",
+			"<h3>Stack Trace:</h3><p style='border:1px solid #ccc;'>".self::getActiveFrameInfo()."</p>",
+			self::__toString()
+		);
+		\clickpdx_protocol_error(implode("\n",$out));
 	}
 	
 	private static function getStyles()

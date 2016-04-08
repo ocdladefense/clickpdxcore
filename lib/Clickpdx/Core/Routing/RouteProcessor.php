@@ -213,10 +213,8 @@ class RouteProcessor
 			$renderArray = '';
 			self::getThemeEngine()->addTemplatePath(\path_to_theme($route->getTheme()).'/templates');
 			
-			
 			if(class_exists($class=$route->getRouteClass()))
 			{
-
 				/**
 				 * Is the outClass renderable?
 				 * If so, just render it and return that,
@@ -235,6 +233,7 @@ class RouteProcessor
 					$callback = $route->getRouteCallback();
 					$argsProcessed = RouteProcessor::processRouteArguments($route);
 					$renderArray = RouteProcessor::doRoute($controller,$callback,$argsProcessed);
+						print "foobar";exit;
 				}
 			} 
 			else
@@ -255,11 +254,13 @@ class RouteProcessor
 		 * should be processed, logged and useful output could still be returned
 		 * to the client.
 		 */
-		catch(RouteException $e)
+		// catch(RouteException $e)
+		catch(Exception $e)
 		{
 			self::processErrors($e,$route);
 			exit;
 		}
+
 		/**
 		 * Other exceptions
 		 *

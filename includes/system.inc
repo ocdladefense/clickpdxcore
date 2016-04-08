@@ -346,8 +346,6 @@ function clickpdx_set_http_status($statusMsg, $statusCode)
 	header("$protocol $statusCode $statusMsg", true, $statusCode);
 }
 
-
-
 function drupal_page_not_found()
 {
 	session_write_close();
@@ -362,6 +360,15 @@ function clickpdx_access_denied()
 	header('HTTP/1.0 403 Forbidden');
 	include('./content/error_pages/error-access.html');
     exit();
+}
+
+
+function clickpdx_protocol_error($errorMsg)
+{
+	session_write_close();
+	header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
+	print $errorMsg;
+	exit();
 }
 
 
