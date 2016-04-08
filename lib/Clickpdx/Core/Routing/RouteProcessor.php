@@ -233,7 +233,6 @@ class RouteProcessor
 					$callback = $route->getRouteCallback();
 					$argsProcessed = RouteProcessor::processRouteArguments($route);
 					$renderArray = RouteProcessor::doRoute($controller,$callback,$argsProcessed);
-						print "foobar";exit;
 				}
 			} 
 			else
