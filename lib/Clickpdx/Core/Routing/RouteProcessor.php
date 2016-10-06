@@ -34,7 +34,8 @@ class RouteProcessor
 	{
 		$includes = self::getIncludeFilesRecursive($route);
 		array_walk($includes,function($file) use($route){
-			require($route->getModulePath().'/'.$file);
+				$filepath = substr($file,0,1)=='/' ? DRUPAL_ROOT.$file : $route->getModulePath().'/'.$file;
+				require($filepath);
 			});
 	}
 	

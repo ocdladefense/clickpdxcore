@@ -1,4 +1,8 @@
 <?php
+/**
+ * I am the theme include file
+ */
+
 define( 'THEME_SCRIPT_REGION_HEADER', 1 );
 define( 'THEME_SCRIPT_REGION_FOOTER', 2 );
 $scripts = array();
@@ -96,10 +100,21 @@ function path_to_theme($theme=null)
 }
 
 
+function jsCapture($key){
+	return function($jsData) use($key){
+		if(false===strpos($jsData,$key)) return;
+		print \entity_toString($jsData);
+		exit;
+	};
+};
+
 function clickpdx_add_js($jsData)
 {
 	// print gettype($jsData);exit;
 	global $scripts;	
+	static $foo;
+	$foo = jsCapture('foo');
+	// $foo($jsData);
 
 	// determine what kind of parameter the last one is
 	$args 			= func_get_args();
@@ -125,7 +140,6 @@ function clickpdx_add_js($jsData)
 			null;
 
 
-
 	$jsData = count($args)>1 ?
 		$args :
 			$jsData;
@@ -133,7 +147,7 @@ function clickpdx_add_js($jsData)
 	// print "Region is: ".$region.'<br />';	
 	// print "Passed data is: ".entity_toString($jsData).'<br />';	
 
-	// Determine if the css data is a list of css file paths.
+	// Determine if the js data is a list of css file paths.
 	/*
 	 * For backwards compatibility where Script might be passed directly.
 	 */

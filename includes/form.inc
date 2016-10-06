@@ -111,7 +111,7 @@ function drupal_process_form_redirect(&$form_state)
 	//	+ either internal or external.
 	if(!empty($server))
 	{
-		clickpdx_goto("{$protocol}{$server}/{$form_state['redirect']['value']}?ref=$dest");
+		clickpdx_goto("{$protocol}{$server}/{$form_state['redirect']['value']}?retURL=$dest");
 	}
 	else
 	{

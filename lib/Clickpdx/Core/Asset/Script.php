@@ -124,6 +124,73 @@ class Script
 		return $this->type;
 	}
 
+	/**
+	 * clickpdx_add_js
+	 *
+	 * A short description of the static method.
+	 */
+	public static function clickpdx_add_js($jsData)
+	{
+		// print gettype($jsData);exit;
+		global $scripts;	
+		$foo = jsCapture('foo');
+		$foo($jsData);
+
+		// determine what kind of parameter the last one is
+		$args 			= func_get_args();
+		$lastArg 		= $args[count($args)-1];
+		$firstArg		= $args[0];
+	
+		/**
+		 * Create a default set of options that will be passed
+		 * for this set of scripts.
+		 */
+		$options 		= is_array($lastArg) ?
+			array_pop($args) :
+				array();
+	
+		/**
+		 * Set the region this script will be rendered in.
+		 */
+		$region = Script::isRegion($lastArg) ?
+			array_pop($args) :
+				THEME_SCRIPT_REGION_HEADER;
+		!isset($options['region']) ?
+			$options['region'] = $region :
+				null;
+
+
+		$jsData = count($args)>1 ?
+			$args :
+				$jsData;
+
+		// print "Region is: ".$region.'<br />';	
+		// print "Passed data is: ".entity_toString($jsData).'<br />';	
+
+		// Determine if the js data is a list of css file paths.
+		/*
+		 * For backwards compatibility where Script might be passed directly.
+		 */
+		if(Script::isScriptObject($firstArg))
+		{
+			$assets = array($firstArg);
+		}
+		else
+		{
+			// print "Passed data is: ".entity_toString($jsData).'<br />';
+			$assets = Script::isFileList($jsData) ?
+				Script::parseFileList($jsData) :
+					array(new Script($jsData));
+		}
+	
+		foreach($assets as $jsAsset)
+		{
+			array_unshift($scripts[$region], $jsAsset);
+		}
+	
+		return $scripts;
+	}
+
 	public function __toString()
 	{
 		return implode('<br />',array(

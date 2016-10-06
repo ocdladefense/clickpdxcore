@@ -358,7 +358,7 @@ function clickpdx_access_denied()
 {
 	session_write_close();
 	header('HTTP/1.0 403 Forbidden');
-	include('./content/error_pages/error-access.html');
+	include('./content/error_pages/error-access.php');
     exit();
 }
 
