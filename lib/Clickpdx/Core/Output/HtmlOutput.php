@@ -77,7 +77,7 @@ class HtmlOutput implements Renderable
 	public function processAttachedJs($jsArray)
 	{
 		array_walk($jsArray,function($item){
-			\clickpdx_add_js($item);
+			\clickpdx_add_js($item,THEME_SCRIPT_REGION_FOOTER);
 		});
 	}
 	
@@ -85,7 +85,7 @@ class HtmlOutput implements Renderable
 	{
 		array_walk($cssArray,function($item){
 			!is_array($item)?\clickpdx_add_css(array(
-				'path' => $item)):\clickpdx_add_css($item);
+				'path' => $item . '?id='.uniqid())):\clickpdx_add_css($item);
 		});
 	}
 	

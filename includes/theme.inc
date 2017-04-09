@@ -125,29 +125,23 @@ function clickpdx_add_js($jsData)
 	 * Create a default set of options that will be passed
 	 * for this set of scripts.
 	 */
-	$options 		= is_array($lastArg) ?
-		array_pop($args) :
-			array();
+	$options 		= is_array($lastArg) ? array_pop($args) : array();
 	
 	/**
 	 * Set the region this script will be rendered in.
 	 */
-	$region = Script::isRegion($lastArg) ?
-		array_pop($args) :
-			THEME_SCRIPT_REGION_HEADER;
-	!isset($options['region']) ?
-		$options['region'] = $region :
-			null;
+	$region = Script::isRegion($lastArg) ? array_pop($args) : THEME_SCRIPT_REGION_HEADER;
+	
+	
+	!isset($options['region']) ? $options['region'] = $region : null;
 
 
-	$jsData = count($args)>1 ?
-		$args :
-			$jsData;
+	$jsData = count($args)>1 ? $args : $jsData;
 
 	// print "Region is: ".$region.'<br />';	
 	// print "Passed data is: ".entity_toString($jsData).'<br />';	
 
-	// Determine if the js data is a list of css file paths.
+	// Determine if the js data is a list of file paths.
 	/*
 	 * For backwards compatibility where Script might be passed directly.
 	 */
@@ -158,9 +152,7 @@ function clickpdx_add_js($jsData)
 	else
 	{
 		// print "Passed data is: ".entity_toString($jsData).'<br />';
-		$assets = Script::isFileList($jsData) ?
-			Script::parseFileList($jsData) :
-				array(new Script($jsData));
+		$assets = Script::isFileList($jsData) ? Script::parseFileList($jsData) : array(new Script($jsData));
 	}
 	
 	foreach($assets as $jsAsset)

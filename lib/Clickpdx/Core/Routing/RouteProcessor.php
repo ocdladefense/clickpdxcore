@@ -12,7 +12,10 @@ class RouteProcessor
 	public static function loadIncludeFiles(Route $route)
 	{
 		$includes = $route->getIncludes();
-		array_walk($includes,function($file) use($route){require($route->getModulePath().'/'.$file);});
+		array_walk($includes,function($file) use($route){
+			$f = $route->getModulePath().'/'.$file;
+			require($f);
+		});
 	}
 	
 	public static function getIncludeFilesRecursive(Route $route, $files=array())
@@ -288,7 +291,7 @@ class RouteProcessor
 				ajax_deliver($renderArray);
 				break;
 			case 'json':
-				json_deliver($renderArray);
+				call_user_func("json_deliver",$renderArray,self::getOutputHandlerArgs($route)['json_encode']);
 				break;
 			case 'jsonp':
 				jsonp_deliver($renderArray);
@@ -309,6 +312,19 @@ class RouteProcessor
 					throw new \Exception('No output handler was specified.');
 				}
 				break;
+		}
+	}
+	
+	public static function getOutputHandlerArgs($route){
+		switch($route->getOutputhandler()){
+			case 'json':
+				$args = count($route->outputHandlerArguments) > 0 ? $route->outputHandlerArguments : array();
+				return $args + array(
+					'json_encode' => true, // by default we'll try to encode the json for output
+				);
+				break;
+			default:
+				return array();
 		}
 	}
 	
