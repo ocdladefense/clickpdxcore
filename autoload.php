@@ -22,7 +22,7 @@ foreach($theFiles as $file){
  *
  * Responsible for loading most core classes.
  */
-$core = createAutoloader(array('core/lib'),DRUPAL_ROOT);
+$core = createAutoloader(array('lib'),__DIR__,false);
 
 
 
@@ -43,6 +43,9 @@ function createAutoloader($searchDirs,$prefix,$debug=false) {
 	{
 		$searchDirs = classSearchDirs($searchDirs,array('prefix'=>$prefix));
 		$classFile = getClassFile($searchDirs,$class,$debug);
+		if($debug) {
+			print "Classfile is: {$classFile}";
+		}
 		if(false!==$classFile)
 		{
 			loadClassFile($classFile);
@@ -57,6 +60,7 @@ function classSearchDirs(Array $paths,$options)
 	{
 		array_walk($paths,'pathPrepend',$options['prefix']);		
 	}
+	
 	return $paths;
 }
 
@@ -76,9 +80,10 @@ function namespaceToPath($autoloadClassCandidate)
 function getClassFile($searchDirs,$class,$debug=false)
 {
 	$class = namespaceToPath($class);
+	
 	foreach($searchDirs as $dir)
 	{
-		$filePath = $dir .'/'.$class .'.'.$autoloaderExt;
+		$filePath = $dir .'/'.$class .'.php';
 		if($debug) print "\n<br />Searching {$filePath} for {$class}.";
 		if(file_exists($filePath))
 		{
@@ -87,7 +92,9 @@ function getClassFile($searchDirs,$class,$debug=false)
 			break;
 		}
 	}
+	
 	if($debug) print "\n<br />{$class} not found!";
+	
 	return false;
 }
 
