@@ -21,9 +21,9 @@ function get_resource($name)
 	global $resources;
 	
 	if(!isset($resources[$name])) {
-		throw new Exception("Could not make a connection to the resource \"{$name}\".");
-		// return null;
+		throw new Exception("Resource, \"{$name}\" is not defined.  Check your settings files.");
 	}
+	
 	$func = 'get_resource_'.$resources[$name]['type'];
 	
 	
