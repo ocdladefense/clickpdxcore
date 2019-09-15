@@ -2,7 +2,6 @@
 
 namespace Clickpdx\Core\Database;
 
-define('DEFAULT_RESOURCE_NAME', 'default');
 
 /**
  * Debug.
@@ -17,7 +16,7 @@ class Database
 
 	public static function finalizeSql($sql,$debug = false, $resourceName = 'default')
 	{
-		$debug = $debug===true?$debug:DATABASE_DEBUG;
+		$debug = $debug === true ? $debug:DATABASE_DEBUG;
 		// For each {table} pattern
 			// Do a lookup on the pattern
 				// identify the replacement, if any

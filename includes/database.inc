@@ -8,7 +8,10 @@ use Clickpdx\Core\Database\Database;
 function get_resource_info($name)
 {
 	global $resources;
+	
 	if(!isset($resources[$name])) throw new Exception("The resource {$name} could not be found.");
+	
+	
 	return $resources[$name];
 }
 
@@ -16,11 +19,14 @@ function get_resource_info($name)
 function get_resource($name)
 {
 	global $resources;
+	
 	if(!isset($resources[$name])) {
 		throw new Exception("Could not make a connection to the resource \"{$name}\".");
 		// return null;
 	}
 	$func = 'get_resource_'.$resources[$name]['type'];
+	
+	
 	return call_user_func($func,$resources[$name]);
 }
 
@@ -61,14 +67,16 @@ function get_mysql_connect_params($p,$cNew=false)
  */
 function db_query($query,$params=null,$type='mysql',$debug=false)
 {
-	try
-	{
+		global $db_connection;
+		
 		if($debug) ini_set('display_errors','1');
+		
 		$sql = Database::finalizeSql($query,$debug);
+		  
 		switch($type)
 		{
 			case 'mysql':
-				global $db_connection;
+
 				$stmt = $db_connection->prepare($sql);
 				return $stmt->execute($params);
 				break;
@@ -87,11 +95,6 @@ function db_query($query,$params=null,$type='mysql',$debug=false)
 				else throw new Exception("There was a database error.");
 				break;
 		}
-	}
-	catch(\Exception $e)
-	{
-		print $e;
-	}
 }
 
 

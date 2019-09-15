@@ -6,23 +6,22 @@ namespace Clickpdx\Core\System;
 
 class Settings
 {
-	private static $settings = array();
+
+	private static $s = array();
 	
 	public static function loadDefaults()
 	{
 		require_once DRUPAL_ROOT .'/sites/default/settings-shared.php';
-		self::$settings = $settings;
+		self::$s = $settings;
+		
+		// This should overwrite the above $settings var.
 		require_once DRUPAL_ROOT .'/sites/default/settings-default.php';
-		self::$settings = array_merge(self::$settings,$settings);
+		self::$s = array_merge(self::$s,$settings);
 	}
 	
-	public static function loadSiteSettings($siteKey)
-	{
-	
-	}
 
 	public static function get($name,$default = null)
 	{
-		return (isset(self::$settings[$name]) ? self::$settings[$name] : $default);
+		return (isset(self::$s[$name]) ? self::$s[$name] : $default);
 	}
 }
