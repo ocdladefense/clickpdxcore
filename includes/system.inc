@@ -302,10 +302,15 @@ function xml_deliver($page_callback_result,$type='xml')
 }
 
 
-function json_deliver($page_callback_result, $type = 'json')
+function json_deliver($page_callback_result, $json_encode = true)
 {
-	// $page_callback_result needs to be a PHP array
-	$json = json_encode($page_callback_result);
+	// $page_callback_result needs to be a string or PHP array
+	// otherwise we would need some helper function to convert whatever
+	// is passed to JSON.
+	
+	// Option to not encode, for example, if the string is already valid JSON.
+	$json = $json_encode ? json_encode($page_callback_result) : $page_callback_result;
+	
 	header("Content-Type: application/json; charset=UTF-8");
 	header("Cache-Control: no-cache, must-revalidate");
 	ob_start();

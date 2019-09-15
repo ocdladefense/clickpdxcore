@@ -146,23 +146,24 @@ class Route
 
 	public function __construct($routerKey,$currentPath=null,$menuItem=null)
 	{
-		$this->path							= $currentPath;
-		$this->routerKey 				= $routerKey;
-		$this->routeClass				= $menuItem['routeClass'];
-		$this->access						= $menuItem['access'];
-		$this->accessArguments	= $menuItem['access arguments'];
-		$this->routeCallback 		= $menuItem['page callback'];
-		$this->routeArguments		= $this->fetchArgumentRules($menuItem['page arguments'],$menuItem['routeArguments']);
-		$this->outputHandler 		= $this->parseOutputHandler($menuItem['output_handler'],$menuItem['output handler']);
-		$this->title 						= $menuItem['title'];
-		$this->files 						= $this->initFiles($menuItem);
-		$this->modulePath 			= $menuItem['module_path'];
-		$this->parameters				= $menuItem['parameters'];
-		$this->meta							= array(
-										'keywords' => $menuItem['meta_description'],
-										'description' => $menuItem['meta_keywords']
-										);
-		$this->theme 						= isset($menuItem['#theme'])?$menuItem['#theme']:$menuItem['theme'];
+		$this->path												= $currentPath;
+		$this->routerKey 									= $routerKey;
+		$this->routeClass									= $menuItem['routeClass'];
+		$this->access											= $menuItem['access'];
+		$this->accessArguments						= $menuItem['access arguments'];
+		$this->routeCallback 							= $menuItem['page callback'];
+		$this->routeArguments							= $this->fetchArgumentRules($menuItem['page arguments'],$menuItem['routeArguments']);
+		$this->outputHandler 							= $this->parseOutputHandler($menuItem['output_handler'],$menuItem['output handler']);
+		$this->outputHandlerArguments 		= $menuItem['output handler arguments'];
+		$this->title 											= $menuItem['title'];
+		$this->files 											= $this->initFiles($menuItem);
+		$this->modulePath 								= $menuItem['module_path'];
+		$this->parameters									= $menuItem['parameters'];
+		$this->meta												= array(
+															'keywords' => $menuItem['meta_description'],
+															'description' => $menuItem['meta_keywords']
+															);
+		$this->theme 											= isset($menuItem['#theme'])?$menuItem['#theme']:$menuItem['theme'];
 	}
 	
 	private function parseOutputHandler($arg1=null,$arg2=null)
