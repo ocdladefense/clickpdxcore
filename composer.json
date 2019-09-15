@@ -3,6 +3,9 @@
     "type": "library",
     "description": "Core files for the Clickpdx routing framework.",
     "keywords": ["http service","service"],
+    "autoload": {
+    	"files": [ "autoload.php" ]
+    },
     "homepage": "https://github.com/ocdladefense/clickpdxcore", 
     "license": "MIT",
     "authors": [
