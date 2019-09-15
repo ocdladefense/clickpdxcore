@@ -30,7 +30,7 @@ class MyExceptionHandler
 		self::__printMe();
 	}
 	
-	public static function __toString()
+	public static function staticToString()
 	{
 		$trace = array_map(array("MyExceptionHandler","getFrame"),self::$trace);
 		return "<p class='trace'>".implode('<br />',$trace)."</p>";
@@ -53,7 +53,7 @@ class MyExceptionHandler
 			"<h3>Error Message:</h3>",
 			"<blockquote>".self::getMessage()."</blockquote>",
 			"<h3>Stack Trace:</h3><p style='border:1px solid #ccc;'>".self::getActiveFrameInfo()."</p>",
-			self::__toString()
+			self::staticToString()
 		);
 		\clickpdx_protocol_error(implode("\n",$out));
 	}

@@ -21,8 +21,8 @@ class Settings
 	
 	}
 
-	public static function get($name)
+	public static function get($name,$default = null)
 	{
-		return self::$settings[$name];
+		return (isset(self::$settings[$name]) ? self::$settings[$name] : $default);
 	}
 }

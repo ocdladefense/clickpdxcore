@@ -83,15 +83,11 @@ class HttpRequest {
 	private function _init() {
 		$this->RequestMethod = $_SERVER['REQUEST_METHOD'];
 		$this->Hostname = $_SERVER['SERVER_NAME'];
-		if( $this->RequestMethod == "GET" ) {
-			$this->RequestValues = $_GET;
-		}
-		else if( $this->RequestMethod == "POST" ) {
-			$this->RequestValues = $_POST;
-		} 
-		else {
-			throw new Exception( 'No valid request method specified.' );
-		}
+		$this->RequestValues = $this->RequestMethod == "POST" ? $_POST : $_GET ;
+
+
+		// throw new \Exception( 'No valid request method specified.' );
+
 	}
 
 	public	 function setServerEnvironment(Server $server) {

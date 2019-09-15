@@ -36,10 +36,20 @@ class RouteProcessor
 	public static function loadIncludeFilesRecursive(Route $route)
 	{
 		$includes = self::getIncludeFilesRecursive($route);
-		array_walk($includes,function($file) use($route){
-				$filepath = substr($file,0,1)=='/' ? DRUPAL_ROOT.$file : $route->getModulePath().'/'.$file;
-				require($filepath);
-			});
+		// print "<pre>".print_r($includes)."</pre>";exit;
+		// array_walk($includes,function($file) use($route){
+		
+		// require("foobar");
+
+
+		foreach($includes as $file){
+			$filepath = substr($file,0,1)=='/' ? DRUPAL_ROOT.$file : $route->getModulePath().'/'.$file;
+			require($filepath);
+			// print $filepath."<br />";
+		}
+
+
+
 	}
 	
 	private static function getRouteArgumentsRecursive(Route $route,$args=array())

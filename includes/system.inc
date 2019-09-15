@@ -12,9 +12,9 @@ function processSettings()
 	Settings::loadDefaults();
 }	
 
-function setting($name)
+function setting($name,$default = null)
 {
-	return Settings::get($name);
+	return Settings::get($name,$default);
 }
 
 

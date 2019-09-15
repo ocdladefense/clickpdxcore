@@ -15,13 +15,13 @@ define('DATABASE_DEBUG',		false);
 class Database
 {
 
-	public static function finalizeSql($sql,$debug=false)
+	public static function finalizeSql($sql,$debug = false, $resourceName = 'default')
 	{
 		$debug = $debug===true?$debug:DATABASE_DEBUG;
 		// For each {table} pattern
 			// Do a lookup on the pattern
 				// identify the replacement, if any
-		$_sql = preg_replace_callback('/{(\w*)}/mi',function($matches) use($debug){ if($debug) print Database::debug($matches); return Database::tableLookup($matches[1]);},$sql);
+		$_sql = preg_replace_callback('/{(\w*)}/mi',function($matches) use($debug,$resourceName){ if($debug) print Database::debug($matches); return Database::tableLookup($matches[1],$resourceName);},$sql);
 		if($debug) print "SQL is: $_sql";
 		return $_sql;
 	}
