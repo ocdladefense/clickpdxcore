@@ -115,7 +115,7 @@ function drupal_load_modules()
 
 
 
-function _drupal_load_modules($refresh=true)
+function _drupal_load_modules()
 {
 	if(system_filesystem_only()) $modules = _get_modules_fs();
 	else $modules = _get_modules();
@@ -130,6 +130,8 @@ function _drupal_load_modules($refresh=true)
 		$loaded[$name] = $path;
 		module_invoke($name,'init');
 	}
+	
+	
 	return $loaded;
 }
 

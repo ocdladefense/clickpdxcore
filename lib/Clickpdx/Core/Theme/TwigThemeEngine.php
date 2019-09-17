@@ -11,13 +11,11 @@ class TwigThemeEngine implements ThemeEngineInterface
 	public function __construct(\Twig_Environment $twig)
 	{
 		$this->twigEnvironment = $twig;
-		$this->twigEnvironment->setLoader($this->loader = new \Twig_Loader_Filesystem(
-			$this->getAllTemplatePaths(), array(
-			'cache' => DRUPAL_ROOT .'/sites/default/files/cache',
-			'debug' => TWIG_DEBUG,
-		)));
-//		$this->loader->addPath(DRUPAL_ROOT . '/);
+		$this->loader = new \Twig_Loader_Filesystem($this->getAllTemplatePaths(), array('cache' => TWIG_CACHE,'debug' => TWIG_DEBUG));
+		$this->twigEnvironment->setLoader($this->loader);
 	}
+	
+	
 	/**
 	 * 
 	 */
@@ -28,15 +26,18 @@ class TwigThemeEngine implements ThemeEngineInterface
 		return $active_theme;
 	}
 
+
 	public function getActiveThemePath()
 	{
 		return theme_get_active_theme_info()['theme_path'];
 	}
+
 	
 	private function getThemePath($themeName)
 	{
 		return 'sites/all/themes/'.$themeName;
 	}
+
 	
 	public function theme($hook, &$variables = array())
 	{

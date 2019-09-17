@@ -213,7 +213,7 @@ class RouteProcessor
 				$route->getTheme();
 	} 
 		 
-	public static function processOutputHandler($route,$vars)
+	public static function processOutputHandler($route,$vars=array())
 	{	
 		/**
 		 * Invoke the callback.

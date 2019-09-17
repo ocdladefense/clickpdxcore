@@ -96,7 +96,17 @@ function theme_get_active_theme_info()
 
 function path_to_theme($theme=null)
 {
-	return $theme==='default'?"themes/default":(isset($theme)?"sites/all/themes/{$theme}":theme_get_active_theme_info()['theme_path']);
+	
+	if($theme==="default") {
+	
+		return "themes/default";
+	} else if(isset($theme)) {
+	
+		return "sites/all/themes/{$theme}";
+	} else {
+	
+		return theme_get_active_theme_info()['theme_path'];
+	}
 }
 
 
