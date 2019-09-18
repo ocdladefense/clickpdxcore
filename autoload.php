@@ -8,7 +8,8 @@ $autoloaderExt = 'php';
  * Core includes are required before any additional 
  * processing of the router can be done.
  */
-$theFiles = array("errors.inc","database.inc","session.inc","string.inc","file.inc","download.inc","system.inc","module.inc","menu.inc","form.inc","utilities.inc","theme.inc","server.inc","filters.inc","node.inc","user.inc","html.inc");
+$theFiles = array("errors.inc","database.inc","session.inc","string.inc","file.inc","download.inc","system.inc","module.inc","menu.inc","form.inc","utilities.inc","theme.inc","server.inc","filters.inc","node.inc","user.inc","html.inc","sso.inc","cookie.inc","curl.inc");
+
 
 
 
