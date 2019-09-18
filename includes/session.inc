@@ -28,7 +28,7 @@ namespace {
 	}
 
 
-	function user_is_authenticated($sessionid=null)
+	function user_is_authenticated($sessionId = null)
 	{
 		global $sess;
 		return $sess->hasAuthenticatedSession();

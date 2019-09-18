@@ -1,6 +1,10 @@
 <?php
 use Doctrine\Common\ClassLoader;
+
+
 namespace Clickpdx\Core\DependencyInjection;
+
+use \Clickpdx\Core\System\Settings; 
 
 class DependencyInjectionContainer
 {
@@ -40,7 +44,15 @@ class DependencyInjectionContainer
     {
       return self::$shared['sessionHandler'];
     }
-		return self::$shared['sessionHandler'] = new \Ocdla\Session();
+
+    $params = array(
+    	'cookieName' 			=> Settings::get('session.cookie_name','OCDLA_SessionId'),
+    	'cookieDomain' 		=> Settings::get('session.cookie_domain','.ocdla.org'),
+    	'cookiePath'			=> Settings::get('session.cookie_path','/'),
+    	'cookieExpiry' 		=> Settings::get('session.cookie_expiry',60*60*24*30),
+    );
+    
+		return self::$shared['sessionHandler'] = new \Ocdla\Session($params);
 	}
 	
 	/**
