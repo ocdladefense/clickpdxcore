@@ -14,7 +14,7 @@ function processSettings()
 
 function setting($name,$default = null)
 {
-	return Settings::get($name,$default);
+	return Settings::get($name,$default=null);
 }
 
 
@@ -71,8 +71,8 @@ function system_get_setting($settingName)
 	
 	switch($settingName)
 	{
-		case 'session_cookie_name':
-			return 'OCDLA_SessionId';
+		case 'session.cookie_name':
+			return Settings::get('session_cookie_name');
 			break;
 		case 'homepage':
 			return $homepage;
