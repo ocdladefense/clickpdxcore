@@ -22,6 +22,11 @@ class Settings
 
 	public static function get($name,$default = null)
 	{
+		if(empty(self::$s)) {
+			self::loadDefaults();
+		}
+		
+		
 		return (isset(self::$s[$name]) ? self::$s[$name] : $default);
 	}
 }

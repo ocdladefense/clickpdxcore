@@ -4,23 +4,6 @@ use Ocdla\MediaWikiException\AuthenticationException as AuthenticationException;
 
 
 
-function sso_menu()
-{
-	$items = array();
-
-	$items['login'] = array(
-		'name' => 'login',
-		'page callback' => 'page_sso_ocdla_login',
-		'title' => 'Secure Login',
-		'access' => TRUE,
-		'#theme' => 'ocdla',
-		'output_handler' => 'html',
-	);
-	return $items;
-}
-
-
-
 function doesMediaWikiPreventEmailUsernames()
 {
 	global $wgInvalidUsernameCharacters;
@@ -89,18 +72,6 @@ function sso_lod_login_submit($request, $session = null)
 	}
 }
 
-
-
-function sso_lod_login_submit2($username, $session = null)
-{	
-	global $wgJoseDebug;
-	$UserID = $session->getUserID();
-	$lodUsername = getValidMediaWikiUsername($username);
-	$wgJoseDebug = false;	
-	\prgLog('About to authenticate to mediawiki...','mediawikiapi');
-	$mwAuthTest = new ApiAuthenticationRequestTest(SSO_WIKI_API_TEST,$UserID,$lodUsername);
-	$mwAuthTest->execute();
-}
 
 
 function lod_user_is_logged_in()
@@ -258,111 +229,4 @@ function ocdla_login_sso_form_submit( $form, &$form_state )
 		'protocol' => $form_state['values']['protocol'],
 		'server' => $form_state['values']['server'],
 	);	 
-}
-
-
-function ocdla_login_sso_form( /*default form structure*/$form, &$form_state )
-{
-	
-	$form = array();
-	$form['#theme'] = 'theme_form';
-	$form['#attributes'] = array(
-		'classes' => array( 'custom' ),
-		'id' => 'ocdla-login',
-	);	
-	
-	$form['form_id'] = array(
-		'#type' => 'hidden',
-		'#value' => 'ocdla_login_sso_form',
-	);
-
-	$form['encoded'] = array(
-		'#type' => 'hidden',
-		'#value' => isset($form_state['values']['referrer']) ? str_replace('&','&amp;',$form_state['values']['referrer']) : NULL,
-	);
-
-	$form['referrer'] = array(
-		'#type' => 'hidden',
-		'#value' => isset($form_state['values']['referrer']) ? str_replace('&','&amp;',$form_state['values']['referrer']) : NULL
-	);
-
-	$form['login_action'] = array(
-		'#type' => 'hidden',
-		'#value' => isset($form_state['values']['loginaction']) ? $form_state['values']['loginaction'] : 'redirect',
-	);
-	
-	$form['parent_i'] = array(
-		'#type' => 'hidden',
-		'#value' => isset($form_state['values']['parent_i']) ? $form_state['values']['parent_i'] : NULL,
-	);
-	
-	$form['productid'] = array(
-		'#type' => 'hidden',
-		'#value' => isset($form_state['values']['productid']) ? $form_state['values']['productid'] : NULL,
-	);
-	
-	$form['protocol'] = array(
-		'#type' => 'hidden',
-		'#value' => isset($form_state['values']['protocol']) ? $form_state['values']['protocol'] : NULL,
-	);
-	
-	// this needs to be fixed for consistency
-	// choose referrer or ref rather than reff
-	$form['reff'] = array(
-		'#type' => 'hidden',
-		'#value' => isset($form_state['values']['ref']) ? $form_state['values']['ref'] : NULL,
-	);
-	
-
-	
-	$form['resource'] = array(
-		'#type' => 'hidden',
-		'#value' => isset($form_state['values']['resource']) ? $form_state['values']['resource'] : NULL,
-	);
-	
-	$form['server'] = array(
-		'#type' => 'hidden',
-		'#value' => isset($form_state['values']['server']) ? $form_state['values']['server'] : NULL,
-	);
-	
-	$form['page'] = array(
-		'#type' => 'hidden',
-		'#value' => isset($form_state['values']['page']) ? $form_state['values']['page'] : NULL,
-	);
-	
-	$form['showproductdetails'] = array(
-		'#type' => 'hidden',
-		'#value' => isset($form_state['values']['showproductdetails']) ? $form_state['values']['showproductdetails'] : NULL,
-	);
-	
-	// can be:
-	// logindiscount
-	// loginrequired
-	$form['status'] = array(
-		'#type' => 'hidden',
-		'#value' => isset($form_state['values']['status']) ? $form_state['values']['status'] : NULL,
-	);
-	
-	$form['name'] = array(
-		'#type' => 'hidden',
-		'#value' => isset($form_state['values']['name']) ? $form_state['values']['name'] : NULL,
-	);
-	
-	$form['UserName'] = array(
-		'#type' => 'text',
-		'#value' => isset($form_state['values']['UserName']) ? $form_state['values']['UserName'] : NULL,
-		'#title' => 'Username',
-	);
-	
-	$form['password'] = array(
-		'#title' => 'Password',
-		'#type' => 'password',
-		'#value' => NULL,
-	);
-	
-	$form['#submit'] = array(
-		'sso_lod_login_submit',
-	);
-
-	return $form;
 }
