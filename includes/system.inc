@@ -14,7 +14,7 @@ function processSettings()
 
 function setting($name,$default = null)
 {
-	return Settings::get($name,$default=null);
+	return Settings::get($name,$default);
 }
 
 
