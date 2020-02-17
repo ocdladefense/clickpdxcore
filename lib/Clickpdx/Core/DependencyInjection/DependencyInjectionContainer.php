@@ -38,21 +38,20 @@ class DependencyInjectionContainer
 	 *
 	 * Initialize a Session for this user/User-Agent.
 	 */
-	public function getSessionHandler()
+	public function getSessionHandler($params)
 	{
     if (isset(self::$shared['sessionHandler']))
     {
       return self::$shared['sessionHandler'];
     }
 
-    $params = array(
-    	'cookieName' 			=> Settings::get('session.cookie_name','OCDLA_SessionId'),
-    	'cookieDomain' 		=> Settings::get('session.cookie_domain','.ocdla.org'),
-    	'cookiePath'			=> Settings::get('session.cookie_path','/'),
-    	'cookieExpiry' 		=> Settings::get('session.cookie_expiry',60*60*24*30),
-    );
-    
-		return self::$shared['sessionHandler'] = new \Ocdla\Session($params);
+    if(Settings::get('session.handler','php_default') != "php_default") {
+			self::$shared['sessionHandler'] = new \Ocdla\Session($params);
+		} else {
+			self::$shared['sessionHandler'] = new \Ocdla\PhpSession($params);
+		}	
+		
+		return self::$shared['sessionHandler'];
 	}
 	
 	/**

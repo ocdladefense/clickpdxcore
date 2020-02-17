@@ -2,7 +2,7 @@
 use Clickpdx\Core\User\User;
 
 
-function user_has_role($string, $uid=null)
+function user_has_role($string, $uid = null)
 {
 	global $user;
 	$u = isset($uid) ? user_load($uid) : $user;
@@ -15,6 +15,8 @@ function user_has_role($string, $uid=null)
 function user_load($uid=null)
 {
 	global $sess;
-	$uid = isset($uid)?$uid:$sess->getUserID();
+	
+	$uid = isset($uid) ? $uid : $sess->getUserID();
+	
 	return User::newFromUid($uid);
 }
