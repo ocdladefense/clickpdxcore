@@ -16,9 +16,9 @@ class Application
 	
 	private $output;
 	
-	private $headers_sent = array();
+	public $headers_sent = array();
 	
-	private $headers = array();
+	public $headers = array();
 	
 	
 	
@@ -72,8 +72,7 @@ class Application
 			session_set_cookie_params(
 				$params["cookieExpiry"],
 				$params["cookiePath"],
-				$params["cookieDomain"],
-				$params["cookieSecure"]
+				$params["cookieDomain"]
 			);
 
 		} else {
@@ -92,6 +91,16 @@ class Application
 		if(headers_sent()) {
 			$this->headers_sent = headers_list();
 		} else {
+
+			foreach(headers_list() as $header) {
+				$pair = explode(':',$header,2);
+				// print_r($pair);print "<br />";
+				if($pair[0] == "Set-Cookie") {
+					$pair[1] .= "; SameSite=None; Secure";
+					header(implode(':',$pair));
+				}
+			}
+			
 			$this->headers = headers_list();
 		}
 
