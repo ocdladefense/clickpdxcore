@@ -16,9 +16,9 @@ class Application
 	
 	private $output;
 	
-	private $headers_sent = array();
+	public $headers_sent = array();
 	
-	private $headers = array();
+	public $headers = array();
 	
 	
 	
@@ -72,8 +72,7 @@ class Application
 			session_set_cookie_params(
 				$params["cookieExpiry"],
 				$params["cookiePath"],
-				$params["cookieDomain"],
-				$params["cookieSecure"]
+				$params["cookieDomain"]
 			);
 
 		} else {
