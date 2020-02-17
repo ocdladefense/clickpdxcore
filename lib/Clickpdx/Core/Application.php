@@ -2,6 +2,10 @@
 
 namespace Clickpdx\Core;
 
+use \Clickpdx\Core\System\Settings; 
+
+
+
 class Application
 {
 	private $dic;
@@ -43,7 +47,43 @@ class Application
 	public function loadSession()
 	{
 		global $sess;
-		$this->sess = $sess = $this->dic->getSessionHandler();
+		
+    $params = array(
+    	'cookieName' 				=> Settings::get('session.cookie_name','OCDLA_SessionId'),
+    	'cookieDomain' 			=> Settings::get('session.cookie_domain','.ocdla.org'),
+    	'cookiePath'				=> Settings::get('session.cookie_path','/'),
+    	'cookieExpiry' 			=> Settings::get('session.cookie_expiry',60*60*24*30),
+    	'cookieSameSite' 		=> Settings::get('session.cookie_samesite','None'),
+    	'cookieSecure'	 		=> Settings::get('session.cookie_secure',true)
+    );
+    
+    // ini_get('session.save_handler');
+		$this->sess = $sess = $this->dic->getSessionHandler($params);   
+		
+		session_name($params['cookieName']);
+		
+		if(php_get_version() < 7) {
+			session_set_cookie_params(
+				$params["cookieExpiry"],
+				$params["cookiePath"],
+				$params["cookieDomain"],
+				$params["cookieSecure"]
+			);
+
+		} else {
+			session_set_cookie_params(array(
+				'lifetime'			=> $params['cookieExpiry'],
+				'path' 					=> $params['cookiePath'],
+				'domain'				=> $params['cookieDomain'],
+				'SameSite'			=> $params['cookieSameSite'],
+				'Secure'				=> $params['cookieSecure']
+			));
+		} 
+		
+
+		session_start(); 
+		print "<pre>".print_r(headers_list(),true)."</pre>";
+		exit;
 	}
 
 	/**

@@ -17,6 +17,13 @@ function setting($name,$default = null)
 	return Settings::get($name,$default);
 }
 
+/**
+ * Get the major version of PHP.  Helpful when needing to test different kinds of functionality.
+ *  In different versions.
+ */
+function php_get_version(){
+	return explode('.',phpversion())[0];
+}
 
 function clickpdx_get_css()
 {		
