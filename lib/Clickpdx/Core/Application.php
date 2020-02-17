@@ -16,6 +16,12 @@ class Application
 	
 	private $output;
 	
+	private $headers_sent = array();
+	
+	private $headers = array();
+	
+	
+	
 	public static function returnBestGuessContext()
 	{	
 		return new \Clickpdx\Core\Http\HttpRequest();
@@ -82,8 +88,13 @@ class Application
 		
 
 		session_start(); 
-		print "<pre>".print_r(headers_list(),true)."</pre>";
-		exit;
+		
+		if(headers_sent()) {
+			$this->headers_sent = headers_list();
+		} else {
+			$this->headers = headers_list();
+		}
+
 	}
 
 	/**
